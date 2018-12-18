@@ -1,6 +1,7 @@
 server:
   port: 8059
-  contextPath: /indexing/v1
+  servlet:
+    context-path: /indexing/v1
 alphavantage:
   apikey: J22355EMA6H0FCIS
 spring:
@@ -15,9 +16,13 @@ spring:
     tomcat:
       initial-size: 5
   jpa:
-    show-sql: true
+#    show-sql: true
     properties.hibernate:
       dialect: org.hibernate.dialect.MySQL5InnoDBDialect
       temp.use_jdbc_metadata_defaults: false
-    hibernate.ddl-auto: create-drop
+#    hibernate.ddl-auto: create-drop
     generate-ddl: true
+#logging:
+#  level:
+#    org.hibernate.SQL: debug
+#    org.hibernate.type.descriptor.sql: trace
