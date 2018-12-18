@@ -1,4 +1,4 @@
-package com.nttdata.dtl.model;
+package com.nttdata.dtl.model.common;
 
 import javax.persistence.*;
 import java.util.Objects;

@@ -1,4 +1,4 @@
-package com.nttdata.dtl.model;
+package com.nttdata.dtl.model.provider;
 
 public enum ShareExchange {
     SHARE, EXCHANGE

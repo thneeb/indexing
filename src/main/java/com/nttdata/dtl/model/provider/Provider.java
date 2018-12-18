@@ -1,4 +1,4 @@
-package com.nttdata.dtl.model;
+package com.nttdata.dtl.model.provider;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

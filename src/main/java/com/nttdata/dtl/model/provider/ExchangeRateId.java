@@ -1,4 +1,4 @@
-package com.nttdata.dtl.model;
+package com.nttdata.dtl.model.provider;
 
 import java.io.Serializable;
 import java.util.Date;

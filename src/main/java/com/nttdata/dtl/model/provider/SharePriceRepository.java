@@ -1,4 +1,4 @@
-package com.nttdata.dtl.model;
+package com.nttdata.dtl.model.provider;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;

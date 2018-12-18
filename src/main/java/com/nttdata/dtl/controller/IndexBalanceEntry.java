@@ -1,6 +1,6 @@
 package com.nttdata.dtl.controller;
 
-import com.nttdata.dtl.model.Share;
+import com.nttdata.dtl.model.common.Share;
 
 import java.util.Date;
 import java.util.Map;

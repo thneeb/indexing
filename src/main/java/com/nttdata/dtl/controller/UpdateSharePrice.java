@@ -1,7 +1,7 @@
 package com.nttdata.dtl.controller;
 
-import com.nttdata.dtl.model.Provider;
-import com.nttdata.dtl.model.ProviderRepository;
+import com.nttdata.dtl.model.provider.Provider;
+import com.nttdata.dtl.model.provider.ProviderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;

@@ -1,4 +1,4 @@
-package com.nttdata.dtl.model;
+package com.nttdata.dtl.model.provider;
 
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
