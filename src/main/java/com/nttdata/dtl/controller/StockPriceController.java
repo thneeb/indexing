@@ -1,6 +1,7 @@
 package com.nttdata.dtl.controller;
 
-import com.nttdata.dtl.model.*;
+import com.nttdata.dtl.model.common.*;
+import com.nttdata.dtl.model.provider.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

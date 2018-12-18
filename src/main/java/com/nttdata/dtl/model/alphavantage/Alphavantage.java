@@ -1,7 +1,9 @@
 package com.nttdata.dtl.model.alphavantage;
 
-import com.nttdata.dtl.model.*;
-import com.nttdata.dtl.model.Currency;
+import com.nttdata.dtl.model.common.Currency;
+import com.nttdata.dtl.model.common.Share;
+import com.nttdata.dtl.model.common.ShareRepository;
+import com.nttdata.dtl.model.provider.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
