@@ -3,16 +3,18 @@ package com.nttdata.dtl.model.provider;
 import java.io.Serializable;
 import java.util.Objects;
 
-public class ProviderQueryShareId implements Serializable {
+public class ProviderQuerySecuritySymbolId implements Serializable {
     private int providerQueryId;
     private String isin;
+    private String symbol;
 
-    public ProviderQueryShareId() {
+    public ProviderQuerySecuritySymbolId() {
     }
 
-    public ProviderQueryShareId(int providerQueryId, String isin) {
+    public ProviderQuerySecuritySymbolId(int providerQueryId, String isin, String symbol) {
         this.providerQueryId = providerQueryId;
         this.isin = isin;
+        this.symbol = symbol;
     }
 
     public int getProviderQueryId() {
@@ -31,25 +33,35 @@ public class ProviderQueryShareId implements Serializable {
         this.isin = isin;
     }
 
+    public String getSymbol() {
+        return symbol;
+    }
+
+    public void setSymbol(String symbol) {
+        this.symbol = symbol;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ProviderQueryShareId that = (ProviderQueryShareId) o;
+        ProviderQuerySecuritySymbolId that = (ProviderQuerySecuritySymbolId) o;
         return providerQueryId == that.providerQueryId &&
-                Objects.equals(isin, that.isin);
+                Objects.equals(isin, that.isin) &&
+                Objects.equals(symbol, that.symbol);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(providerQueryId, isin);
+        return Objects.hash(providerQueryId, isin, symbol);
     }
 
     @Override
     public String toString() {
-        return "ProviderQueryShareId{" +
+        return "ProviderQuerySecuritySymbolId{" +
                 "providerQueryId=" + providerQueryId +
                 ", isin='" + isin + '\'' +
+                ", symbol='" + symbol + '\'' +
                 '}';
     }
 }

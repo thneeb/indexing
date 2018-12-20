@@ -13,7 +13,7 @@ import java.util.Map;
 @Component
 public class ProviderFactory implements ApplicationContextAware {
     private Provider alphavantage = new Provider(1, "Alphavantage", 5);
-    private ProviderQuery alphavantageDaily = new ProviderQuery(1, 1, "DAILY", ShareExchange.SHARE);
+    private ProviderQuery alphavantageDaily = new ProviderQuery(3, 1, "DAILY", ShareExchange.SHARE);
     private ProviderQuery alphavantageIntraday = new ProviderQuery(2, 1, "INTRADAY", ShareExchange.SHARE);
     private ApplicationContext context;
 

@@ -8,22 +8,25 @@ import java.util.Date;
 import java.util.Objects;
 
 @Entity
-@IdClass(ProviderQueryShareId.class)
-public class ProviderQueryShare {
+@IdClass(ProviderQuerySecuritySymbolId.class)
+public class ProviderQuerySecuritySymbol {
     @Id
     private int providerQueryId;
     @Id
     @Column(length = 12)
     private String isin;
+    @Column(length = 20)
+    private String symbol;
     private int intervalInMinutes;
     private Date lastRun;
 
-    public ProviderQueryShare() {
+    public ProviderQuerySecuritySymbol() {
     }
 
-    public ProviderQueryShare(int providerQueryId, String isin, int intervalInMinutes, Date lastRun) {
+    public ProviderQuerySecuritySymbol(int providerQueryId, String isin, String symbol, int intervalInMinutes, Date lastRun) {
         this.providerQueryId = providerQueryId;
         this.isin = isin;
+        this.symbol = symbol;
         this.intervalInMinutes = intervalInMinutes;
         this.lastRun = lastRun;
     }
@@ -42,6 +45,14 @@ public class ProviderQueryShare {
 
     public void setIsin(String isin) {
         this.isin = isin;
+    }
+
+    public String getSymbol() {
+        return symbol;
+    }
+
+    public void setSymbol(String symbol) {
+        this.symbol = symbol;
     }
 
     public int getIntervalInMinutes() {
@@ -64,21 +75,23 @@ public class ProviderQueryShare {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ProviderQueryShare that = (ProviderQueryShare) o;
+        ProviderQuerySecuritySymbol that = (ProviderQuerySecuritySymbol) o;
         return providerQueryId == that.providerQueryId &&
-                Objects.equals(isin, that.isin);
+                Objects.equals(isin, that.isin) &&
+                Objects.equals(symbol, that.symbol);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(providerQueryId, isin);
+        return Objects.hash(providerQueryId, isin, symbol);
     }
 
     @Override
     public String toString() {
-        return "ProviderQueryShare{" +
+        return "ProviderQuerySecuritySymbol{" +
                 "providerQueryId=" + providerQueryId +
                 ", isin='" + isin + '\'' +
+                ", symbol='" + symbol + '\'' +
                 ", intervalInMinutes=" + intervalInMinutes +
                 ", lastRun=" + lastRun +
                 '}';

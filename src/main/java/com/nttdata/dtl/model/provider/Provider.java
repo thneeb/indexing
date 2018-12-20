@@ -9,11 +9,11 @@ import java.util.Objects;
 @Entity
 public class Provider {
     @Id
-    @GeneratedValue
+//    @GeneratedValue
     private int providerId;
     @Column(length = 50)
     private String name;
-    private int callsPerMinute;
+    private Integer callsPerMinute;
 
     public Provider() {
     }
@@ -40,11 +40,11 @@ public class Provider {
         this.name = name;
     }
 
-    public int getCallsPerMinute() {
+    public Integer getCallsPerMinute() {
         return callsPerMinute;
     }
 
-    public void setCallsPerMinute(int callsPerMinute) {
+    public void setCallsPerMinute(Integer callsPerMinute) {
         this.callsPerMinute = callsPerMinute;
     }
 

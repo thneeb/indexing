@@ -7,8 +7,8 @@ import org.springframework.data.repository.query.Param;
 import java.util.Date;
 
 public interface SharePriceRepository extends CrudRepository<SharePrice, SharePriceKey> {
-    boolean existsByProviderQueryIdAndIsin(int providerQueryId, String isin);
+    boolean existsByProviderQueryIdAndIsinAndSymbol(int providerQueryId, String isin, String symbol);
 
-    @Query("SELECT MAX(timestamp) FROM SharePrice WHERE providerQueryId = :providerQueryId AND isin = :isin")
-    Date getLastQuote(@Param("providerQueryId") int providerQueryId, @Param("isin") String isin);
+    @Query("SELECT MAX(timestamp) FROM SharePrice WHERE providerQueryId = :providerQueryId AND isin = :isin AND symbol = :symbol")
+    Date getLastQuote(@Param("providerQueryId") int providerQueryId, @Param("isin") String isin, @Param("symbol") String symbol);
 }

@@ -1,34 +1,27 @@
 package com.nttdata.dtl.model.common;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.IdClass;
 import java.util.Objects;
 
 @Entity
-@Table(indexes = {
-    @Index(columnList = "wkn", unique = true),
-    @Index(columnList = "symbol")
-})
-public class Share {
+@IdClass(SecuritySymbolId.class)
+public class SecuritySymbol {
     @Id
-    @Column(length = 12, nullable = false, unique = true)
     private String isin;
-    @Column(length = 6, nullable = false, unique = true)
-    private String wkn;
-    @Column(length = 12)
+    @Id
     private String symbol;
-    @Column(length = 50, nullable = false)
-    private String name;
-    @Column(length = 3, nullable = false)
+    private String origin;
     private String currency;
 
-    public Share() {
+    public SecuritySymbol() {
     }
 
-    public Share(String isin, String wkn, String symbol, String name, String currency) {
+    public SecuritySymbol(String isin, String symbol, String origin, String currency) {
         this.isin = isin;
-        this.wkn = wkn;
         this.symbol = symbol;
-        this.name = name;
+        this.origin = origin;
         this.currency = currency;
     }
 
@@ -40,14 +33,6 @@ public class Share {
         this.isin = isin;
     }
 
-    public String getWkn() {
-        return wkn;
-    }
-
-    public void setWkn(String wkn) {
-        this.wkn = wkn;
-    }
-
     public String getSymbol() {
         return symbol;
     }
@@ -56,12 +41,12 @@ public class Share {
         this.symbol = symbol;
     }
 
-    public String getName() {
-        return name;
+    public String getOrigin() {
+        return origin;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setOrigin(String origin) {
+        this.origin = origin;
     }
 
     public String getCurrency() {
@@ -76,22 +61,23 @@ public class Share {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Share share = (Share) o;
-        return Objects.equals(isin, share.isin);
+        SecuritySymbol that = (SecuritySymbol) o;
+        return Objects.equals(isin, that.isin) &&
+                Objects.equals(symbol, that.symbol);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(isin);
+        return Objects.hash(isin, symbol);
     }
 
     @Override
     public String toString() {
-        return "Share{" +
+        return "SecuritySymbol{" +
                 "isin='" + isin + '\'' +
-                ", wkn='" + wkn + '\'' +
                 ", symbol='" + symbol + '\'' +
-                ", name='" + name + '\'' +
+                ", origin='" + origin + '\'' +
+                ", currency='" + currency + '\'' +
                 '}';
     }
 }

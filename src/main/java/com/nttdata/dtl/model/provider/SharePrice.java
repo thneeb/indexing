@@ -16,6 +16,9 @@ public class SharePrice {
     @Column(length = 12)
     private String isin;
     @Id
+    @Column(length = 20)
+    private String symbol;
+    @Id
     private Date timestamp;
     @Id
     private OpenHighCloseLow openHighCloseLow;
@@ -25,9 +28,10 @@ public class SharePrice {
     public SharePrice() {
     }
 
-    public SharePrice(int providerQueryId, String isin, Date timestamp, OpenHighCloseLow openHighCloseLow, double price, long volume) {
+    public SharePrice(int providerQueryId, String isin, String symbol, Date timestamp, OpenHighCloseLow openHighCloseLow, double price, long volume) {
         this.providerQueryId = providerQueryId;
         this.isin = isin;
+        this.symbol = symbol;
         this.timestamp = timestamp;
         this.openHighCloseLow = openHighCloseLow;
         this.price = price;
@@ -48,6 +52,14 @@ public class SharePrice {
 
     public void setIsin(String isin) {
         this.isin = isin;
+    }
+
+    public String getSymbol() {
+        return symbol;
+    }
+
+    public void setSymbol(String symbol) {
+        this.symbol = symbol;
     }
 
     public Date getTimestamp() {
@@ -89,13 +101,14 @@ public class SharePrice {
         SharePrice that = (SharePrice) o;
         return providerQueryId == that.providerQueryId &&
                 Objects.equals(isin, that.isin) &&
+                Objects.equals(symbol, that.symbol) &&
                 Objects.equals(timestamp, that.timestamp) &&
                 openHighCloseLow == that.openHighCloseLow;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(providerQueryId, isin, timestamp, openHighCloseLow);
+        return Objects.hash(providerQueryId, isin, symbol, timestamp, openHighCloseLow);
     }
 
     @Override
@@ -103,6 +116,7 @@ public class SharePrice {
         return "SharePrice{" +
                 "providerQueryId=" + providerQueryId +
                 ", isin='" + isin + '\'' +
+                ", symbol='" + symbol + '\'' +
                 ", timestamp=" + timestamp +
                 ", openHighCloseLow=" + openHighCloseLow +
                 ", price=" + price +

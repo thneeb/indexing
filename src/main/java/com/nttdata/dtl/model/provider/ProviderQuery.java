@@ -8,7 +8,7 @@ import java.util.Objects;
 @Entity
 public class ProviderQuery {
     @Id
-    @GeneratedValue
+//    @GeneratedValue
     private int providerQueryId;
     private int providerId;
     private String name;

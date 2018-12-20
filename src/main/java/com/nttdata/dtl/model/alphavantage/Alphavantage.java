@@ -1,8 +1,8 @@
 package com.nttdata.dtl.model.alphavantage;
 
 import com.nttdata.dtl.model.common.Currency;
-import com.nttdata.dtl.model.common.Share;
-import com.nttdata.dtl.model.common.ShareRepository;
+import com.nttdata.dtl.model.common.SecuritySymbol;
+import com.nttdata.dtl.model.common.SecurityRepository;
 import com.nttdata.dtl.model.provider.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +28,7 @@ public class Alphavantage implements TimeSeriesProvider {
     private SharePriceRepository sharePriceRepository;
 
     @Autowired
-    private ShareRepository shareRepository;
+    private SecurityRepository securityRepository;
 
     @Autowired
     private ExchangeRateRepository exchangeRateRepository;
@@ -41,16 +41,17 @@ public class Alphavantage implements TimeSeriesProvider {
         return "Alphavantage";
     }
 
-    private boolean isFullLoad(ProviderQuery providerQuery, Share share) {
-        if (!sharePriceRepository.existsByProviderQueryIdAndIsin(providerQuery.getProviderQueryId(), share.getIsin())) {
+    private boolean isFullLoad(ProviderQuery providerQuery, SecuritySymbol securitySymbol) {
+        if (!sharePriceRepository.existsByProviderQueryIdAndIsinAndSymbol(
+                providerQuery.getProviderQueryId(), securitySymbol.getIsin(), securitySymbol.getSymbol())) {
             return true;
         } else {
-            Date lastQuote = sharePriceRepository.getLastQuote(providerQuery.getProviderQueryId(), share.getIsin());
+            Date lastQuote = sharePriceRepository.getLastQuote(providerQuery.getProviderQueryId(), securitySymbol.getIsin(), securitySymbol.getSymbol());
             if (providerQuery.getName().contains("INTRADAY")) {
                 Calendar calendar = new GregorianCalendar();
                 calendar.setTime(lastQuote);
                 calendar.add(Calendar.MINUTE, 80);
-                return new Date().before(calendar.getTime());
+                return new Date().after(calendar.getTime());
             } else if (providerQuery.getName().contains("DAILY")) {
                 Calendar calendar = new GregorianCalendar();
                 calendar.setTime(lastQuote);
@@ -63,18 +64,8 @@ public class Alphavantage implements TimeSeriesProvider {
     }
 
     @Override
-    public boolean execute(ProviderQuery providerQuery, Share share, Date lastRun) {
+    public void execute(ProviderQuery providerQuery, SecuritySymbol symbol, Date lastRun) {
         try {
-            if (lastRun != null) {
-                Calendar calendar = new GregorianCalendar();
-                calendar.setTime(lastRun);
-                calendar.add(Calendar.MINUTE, 10);
-                if (new Date().before(calendar.getTime())) {
-                    LOG.info("Skipped " + providerQuery.getName() + " " + share.getSymbol());
-                    return false;
-                }
-            }
-
             StringBuilder sb = new StringBuilder();
             sb.append("https://www.alphavantage.co/query");
             sb.append("?function=");
@@ -89,9 +80,9 @@ public class Alphavantage implements TimeSeriesProvider {
                 throw new IllegalStateException("Unsupported query type: " + providerQuery.getName());
             }
             sb.append("&symbol=");
-            sb.append(share.getSymbol());
+            sb.append(symbol.getSymbol());
             sb.append("&outputsize=");
-            if (isFullLoad(providerQuery, share)) {
+            if (isFullLoad(providerQuery, symbol)) {
                 sb.append("full");
             } else {
                 sb.append("compact");
@@ -113,26 +104,15 @@ public class Alphavantage implements TimeSeriesProvider {
                 double lowPrice = Double.parseDouble(price.get("3. low"));
                 double closePrice = Double.parseDouble(price.get("4. close"));
                 long volume = Long.parseLong(price.get("5. volume"));
-                sharePriceRepository.save(new SharePrice(providerQuery.getProviderQueryId(), share.getIsin(), date, OpenHighCloseLow.OPEN, openPrice, volume));
-                sharePriceRepository.save(new SharePrice(providerQuery.getProviderQueryId(), share.getIsin(), date, OpenHighCloseLow.HIGH, highPrice, volume));
-                sharePriceRepository.save(new SharePrice(providerQuery.getProviderQueryId(), share.getIsin(), date, OpenHighCloseLow.CLOSE, lowPrice, volume));
-                sharePriceRepository.save(new SharePrice(providerQuery.getProviderQueryId(), share.getIsin(), date, OpenHighCloseLow.LOW, closePrice, volume));
+                sharePriceRepository.save(new SharePrice(providerQuery.getProviderQueryId(), symbol.getIsin(), symbol.getSymbol(), date, OpenHighCloseLow.OPEN, openPrice, volume));
+                sharePriceRepository.save(new SharePrice(providerQuery.getProviderQueryId(), symbol.getIsin(), symbol.getSymbol(), date, OpenHighCloseLow.HIGH, highPrice, volume));
+                sharePriceRepository.save(new SharePrice(providerQuery.getProviderQueryId(), symbol.getIsin(), symbol.getSymbol(), date, OpenHighCloseLow.CLOSE, lowPrice, volume));
+                sharePriceRepository.save(new SharePrice(providerQuery.getProviderQueryId(), symbol.getIsin(), symbol.getSymbol(), date, OpenHighCloseLow.LOW, closePrice, volume));
             }
-            return true;
+            LOG.info("Retrieved time series from " + providerQuery.getName() + " for " + symbol.getIsin() + "(" + symbol.getSymbol() + ")");
         } catch (ParseException e) {
             throw new IllegalStateException(e);
         }
-    }
-
-    @Override
-    public List<Share> availableShares() {
-        List<Share> list = new ArrayList<>();
-        shareRepository.findAll().forEach(f -> {
-            if (f.getSymbol() != null) {
-                list.add(f);
-            }
-        });
-        return list;
     }
 
     @Override
