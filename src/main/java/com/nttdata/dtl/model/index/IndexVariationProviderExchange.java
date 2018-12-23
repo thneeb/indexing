@@ -2,24 +2,26 @@ package com.nttdata.dtl.model.index;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.Objects;
 
 @Entity
-public class IndexVariationProvider {
+public class IndexVariationProviderExchange implements Timespan, Cloneable {
     @Id
-    private Integer symbolId;
+    @GeneratedValue
+    private Integer providerExchangeId;
     @Column(nullable = false)
     private Integer providerQueryId;
     @Column(nullable = false)
     private Integer variationId;
     @NotNull
-    @Column(length = 12, nullable = false)
-    private String isin;
-    @Column(length = 20, nullable = false)
-    private String symbol;
+    @Column(length = 3, nullable = false)
+    private String currencyFrom;
+    @Column(length = 3, nullable = false)
+    private String currencyTo;
     @Column(nullable = false)
     private Date validFrom;
     @Column(nullable = false)
@@ -28,15 +30,15 @@ public class IndexVariationProvider {
     @Column(nullable = false)
     private double quality;
 
-    public IndexVariationProvider() {
+    public IndexVariationProviderExchange() {
     }
 
-    public Integer getSymbolId() {
-        return symbolId;
+    public Integer getProviderExchangeId() {
+        return providerExchangeId;
     }
 
-    public void setSymbolId(Integer symbolId) {
-        this.symbolId = symbolId;
+    public void setProviderExchangeId(Integer providerExchangeId) {
+        this.providerExchangeId = providerExchangeId;
     }
 
     public Integer getVariationId() {
@@ -47,12 +49,12 @@ public class IndexVariationProvider {
         this.variationId = variationId;
     }
 
-    public String getIsin() {
-        return isin;
+    public String getCurrencyFrom() {
+        return currencyFrom;
     }
 
-    public void setIsin(String isin) {
-        this.isin = isin;
+    public void setCurrencyFrom(String currencyFrom) {
+        this.currencyFrom = currencyFrom;
     }
 
     public Integer getProviderQueryId() {
@@ -63,12 +65,12 @@ public class IndexVariationProvider {
         this.providerQueryId = providerQueryId;
     }
 
-    public String getSymbol() {
-        return symbol;
+    public String getCurrencyTo() {
+        return currencyTo;
     }
 
-    public void setSymbol(String symbol) {
-        this.symbol = symbol;
+    public void setCurrencyTo(String currencyTo) {
+        this.currencyTo = currencyTo;
     }
 
     public Date getValidFrom() {
@@ -99,26 +101,37 @@ public class IndexVariationProvider {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        IndexVariationProvider that = (IndexVariationProvider) o;
-        return Objects.equals(symbolId, that.symbolId);
+        IndexVariationProviderExchange that = (IndexVariationProviderExchange) o;
+        return Objects.equals(providerExchangeId, that.providerExchangeId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(symbolId);
+        return Objects.hash(providerExchangeId);
     }
 
     @Override
     public String toString() {
-        return "IndexVariationProvider{" +
-                "symbolId=" + symbolId +
+        return "IndexVariationProviderSecurity{" +
+                "providerExchangeId=" + providerExchangeId +
                 ", providerQueryId=" + providerQueryId +
                 ", variationId=" + variationId +
-                ", isin='" + isin + '\'' +
-                ", symbol='" + symbol + '\'' +
+                ", currencyFrom='" + currencyFrom + '\'' +
+                ", currencyTo='" + currencyTo + '\'' +
                 ", validFrom=" + validFrom +
                 ", validTo=" + validTo +
                 ", quality=" + quality +
                 '}';
+    }
+
+    @Override
+    public Object clone() {
+        try {
+            IndexVariationProviderExchange obj = (IndexVariationProviderExchange)super.clone();
+            obj.setProviderExchangeId(null);
+            return obj;
+        } catch (CloneNotSupportedException e) {
+            throw new IllegalStateException(e);
+        }
     }
 }

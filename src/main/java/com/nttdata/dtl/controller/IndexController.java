@@ -34,7 +34,7 @@ public class IndexController {
     private IndexVariationSecurityRepository indexVariationSecurityRepository;
 
     @Autowired
-    private IndexVariationProviderRepository indexVariationProviderRepository;
+    private IndexVariationProviderSecurityRepository indexVariationProviderSecurityRepository;
 
     @Autowired
     private IndexFacade indexFacade;
@@ -175,28 +175,78 @@ public class IndexController {
         }
     }
 
-    @RequestMapping(value = "/{masterdataId}/variation/{variationId}/provider", method = RequestMethod.POST)
-    public ResponseEntity<?> createProvider(@PathVariable int masterdataId, @PathVariable int variationId,
-                                            @RequestBody IndexVariationProvider entity) {
-        if (entity.getVariationId() != null && entity.getVariationId() != variationId) {
-            return ResponseEntity.badRequest().build();
+    @RequestMapping(value = "/{masterdataId}/variation/{variationId}/security", method = RequestMethod.POST)
+    public ResponseEntity<?> createProviderSecurity(@PathVariable int masterdataId, @PathVariable int variationId,
+                                            @RequestBody IndexVariationProviderSecurity entity) {
+        try {
+            if (entity.getVariationId() != null && entity.getVariationId() != variationId) {
+                return ResponseEntity.badRequest().build();
+            }
+            entity.setVariationId(variationId);
+            Optional<IndexVariation> v = indexVariationRepository.findById(variationId);
+            if (!v.isPresent()) {
+                return ResponseEntity.badRequest().build();
+            }
+            if (v.get().getMasterdataId() != masterdataId) {
+                return ResponseEntity.badRequest().build();
+            }
+            entity = indexFacade.insertProviderSecurity(entity, false);
+            String reference = linkTo(methodOn(getClass()).findProviderSecurity(masterdataId, variationId, entity.getProviderSecurityId())).withSelfRel().getHref();
+            return ResponseEntity.created(URI.create(reference)).body(entity);
+        } catch (DataIntegrityViolationException | IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        } catch (PrivilegedActionException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-        entity.setVariationId(variationId);
-        Optional<IndexVariation> v = indexVariationRepository.findById(variationId);
-        if (!v.isPresent()) {
-            return ResponseEntity.badRequest().build();
-        }
-        if (v.get().getMasterdataId() != masterdataId) {
-            return ResponseEntity.badRequest().build();
-        }
-        entity = indexFacade.insertProvider(entity);
-        String reference = linkTo(methodOn(getClass()).findProvider(masterdataId, variationId, entity.getSymbolId())).withSelfRel().getHref();
-        return ResponseEntity.created(URI.create(reference)).body(entity);
     }
 
-    @RequestMapping(value = "/{masterdataId}/variation/{variationId}/provider/{symbolId}", method = RequestMethod.GET)
-    public ResponseEntity<?> findProvider(@PathVariable int masterdataId, @PathVariable int variationId, @PathVariable int symbolId) {
-        Optional<IndexVariationProvider> optionalIndexVariationProvider = indexVariationProviderRepository.findById(symbolId);
+    @RequestMapping(value = "/{masterdataId}/variation/{variationId}/security/{securityId}", method = RequestMethod.GET)
+    public ResponseEntity<?> findProviderSecurity(@PathVariable int masterdataId, @PathVariable int variationId, @PathVariable int securityId) {
+        Optional<IndexVariationProviderSecurity> optionalIndexVariationProvider = indexVariationProviderSecurityRepository.findById(securityId);
+        if (!optionalIndexVariationProvider.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+        if (optionalIndexVariationProvider.get().getVariationId() != variationId) {
+            return ResponseEntity.notFound().build();
+        }
+        Optional<IndexVariation> optionalIndexVariation = indexVariationRepository.findById(variationId);
+        if (!optionalIndexVariation.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+        if (optionalIndexVariation.get().getMasterdataId() != masterdataId) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(optionalIndexVariationProvider.get());
+    }
+
+    @RequestMapping(value = "/{masterdataId}/variation/{variationId}/exchange", method = RequestMethod.POST)
+    public ResponseEntity<?> createProviderExchange(@PathVariable int masterdataId, @PathVariable int variationId,
+                                                    @RequestBody IndexVariationProviderExchange entity) {
+        try {
+            if (entity.getVariationId() != null && entity.getVariationId() != variationId) {
+                return ResponseEntity.badRequest().build();
+            }
+            entity.setVariationId(variationId);
+            Optional<IndexVariation> v = indexVariationRepository.findById(variationId);
+            if (!v.isPresent()) {
+                return ResponseEntity.badRequest().build();
+            }
+            if (v.get().getMasterdataId() != masterdataId) {
+                return ResponseEntity.badRequest().build();
+            }
+            entity = indexFacade.insertProviderExchange(entity, false);
+            String reference = linkTo(methodOn(getClass()).findProviderExchange(masterdataId, variationId, entity.getProviderExchangeId())).withSelfRel().getHref();
+            return ResponseEntity.created(URI.create(reference)).body(entity);
+        } catch (DataIntegrityViolationException | IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        } catch (PrivilegedActionException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+    }
+
+    @RequestMapping(value = "/{masterdataId}/variation/{variationId}/exchange/{exchangeId}", method = RequestMethod.GET)
+    public ResponseEntity<?> findProviderExchange(@PathVariable int masterdataId, @PathVariable int variationId, @PathVariable int exchangeId) {
+        Optional<IndexVariationProviderSecurity> optionalIndexVariationProvider = indexVariationProviderSecurityRepository.findById(exchangeId);
         if (!optionalIndexVariationProvider.isPresent()) {
             return ResponseEntity.notFound().build();
         }
@@ -215,6 +265,14 @@ public class IndexController {
 
     @RequestMapping(value = "/{masterdataId}/variation/{variationId}/calculation", method = RequestMethod.POST)
     public ResponseEntity<?> calculateVariation(@PathVariable int masterdataId, @PathVariable int variationId, @RequestBody CalculationConfig calculationConfig) {
+        Optional<IndexVariation> v = indexVariationRepository.findById(variationId);
+        if (!v.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+        if (v.get().getMasterdataId() != masterdataId) {
+            return ResponseEntity.notFound().build();
+        }
+        indexFacade.calculateVariation(variationId, calculationConfig);
         return ResponseEntity.ok("success");
     }
 

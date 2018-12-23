@@ -56,7 +56,7 @@ public class Alphavantage implements TimeSeriesProvider {
                 Calendar calendar = new GregorianCalendar();
                 calendar.setTime(lastQuote);
                 calendar.add(Calendar.DAY_OF_YEAR, 80);
-                return new Date().before(calendar.getTime());
+                return new Date().after(calendar.getTime());
             } else {
                 return true;
             }

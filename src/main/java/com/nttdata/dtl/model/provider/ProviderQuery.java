@@ -1,5 +1,6 @@
 package com.nttdata.dtl.model.provider;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -10,8 +11,11 @@ public class ProviderQuery {
     @Id
 //    @GeneratedValue
     private int providerQueryId;
+    @Column(nullable = false)
     private int providerId;
+    @Column(nullable = false, length = 50)
     private String name;
+    @Column(nullable = false)
     private ShareExchange shareExchange;
 
     public ProviderQuery() {
