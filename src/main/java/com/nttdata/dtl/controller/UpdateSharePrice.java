@@ -1,6 +1,7 @@
 package com.nttdata.dtl.controller;
 
 import com.nttdata.dtl.model.common.*;
+import com.nttdata.dtl.model.common.Currency;
 import com.nttdata.dtl.model.provider.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -14,19 +15,25 @@ public class UpdateSharePrice {
     private ProviderRepository providerRepository;
 
     @Autowired
-    private ProviderQuerySecuritySymbolRepository providerQuerySecuritySymbolRepository;
+    private ProviderQueryRepository providerQueryRepository;
 
     @Autowired
     private ProviderFactory providerFactory;
 
     @Autowired
-    private ProviderQueryRepository providerQueryRepository;
-
-    @Autowired
     private SecuritySymbolRepository securitySymbolRepository;
 
-//    @Scheduled(cron="*/15 * * * * *")
-    public void updateLastUpdated() {
+    @Autowired
+    private CurrencyRepository currencyRepository;
+
+    @Autowired
+    private ProviderQuerySecuritySymbolRepository providerQuerySecuritySymbolRepository;
+
+    @Autowired
+    private ProviderQueryExchangeRateRepository providerQueryExchangeRateRepository;
+
+    @Scheduled(cron="*/25 * * * * *")
+    public void updateSecurityRate() {
         for (Provider provider : providerRepository.findAll()) {
             List<ProviderQuerySecuritySymbol> list = new ArrayList<>();
             providerQuerySecuritySymbolRepository.findByProviderId(provider.getProviderId()).forEach(list::add);
@@ -42,6 +49,29 @@ public class UpdateSharePrice {
                     pqs.get().setLastRun(new Date());
                     providerQuerySecuritySymbolRepository.save(pqs.get());
                     tsp.execute(optionalProviderQuery.get(), optionalShare.get(), pqs.get().getLastRun());
+                }
+            }
+        }
+    }
+
+    @Scheduled(cron="*/35 * * * * *")
+    public void updateExchangeRate() {
+        for (Provider provider : providerRepository.findAll()) {
+            List<ProviderQueryExchangeRate> list = new ArrayList<>();
+            providerQueryExchangeRateRepository.findByProviderId(provider.getProviderId()).forEach(list::add);
+            Optional<ProviderQueryExchangeRate> pqe = list.stream().filter(f -> f.getLastRun() == null).findFirst();
+            if (!pqe.isPresent()) {
+                pqe = list.stream().filter(f -> f.getLastRun() != null).min(Comparator.comparing(ProviderQueryExchangeRate::getLastRun));
+            }
+            if (pqe.isPresent()) {
+                TimeSeriesProvider tsp = providerFactory.getTimeSeriesProvider(provider.getName());
+                Optional<ProviderQuery> optionalProviderQuery = providerQueryRepository.findById(pqe.get().getProviderQueryId());
+                Optional<Currency> currencyFrom = currencyRepository.findById(pqe.get().getCurrencyFrom());
+                Optional<Currency> currencyTo = currencyRepository.findById(pqe.get().getCurrencyTo());
+                if (optionalProviderQuery.isPresent() && currencyFrom.isPresent() && currencyTo.isPresent()) {
+                    pqe.get().setLastRun(new Date());
+                    providerQueryExchangeRateRepository.save(pqe.get());
+                    tsp.execute(optionalProviderQuery.get(), currencyFrom.get(), currencyTo.get(), pqe.get().getLastRun());
                 }
             }
         }

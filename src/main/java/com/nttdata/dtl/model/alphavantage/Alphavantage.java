@@ -91,25 +91,30 @@ public class Alphavantage implements TimeSeriesProvider {
             sb.append(apikey);
             LOG.info(new String(sb));
             ResponseEntity<Map> response = restTemplate.getForEntity(new String(sb), Map.class);
-            Optional<String> key = response.getBody().keySet().stream().filter(f -> !"Meta Data".equals(f)).findFirst();
-            if (!key.isPresent()) {
-                throw new IllegalStateException("Cannot find non Meta Data key");
+            String errorMessage = (String) response.getBody().get("Error Message");
+            if (errorMessage != null) {
+                LOG.error(errorMessage);
+            } else {
+                Optional<String> key = response.getBody().keySet().stream().filter(f -> !"Meta Data".equals(f)).findFirst();
+                if (!key.isPresent()) {
+                    throw new IllegalStateException("Cannot find non Meta Data key");
+                }
+                Map<String, Map<String, String>> map = (Map<String, Map<String, String>>) response.getBody().get(key.get());
+                for (Map.Entry<String, Map<String, String>> entry : map.entrySet()) {
+                    Date date = df.parse(entry.getKey());
+                    Map<String, String> price = entry.getValue();
+                    double openPrice = Double.parseDouble(price.get("1. open"));
+                    double highPrice = Double.parseDouble(price.get("2. high"));
+                    double lowPrice = Double.parseDouble(price.get("3. low"));
+                    double closePrice = Double.parseDouble(price.get("4. close"));
+                    long volume = Long.parseLong(price.get("5. volume"));
+                    sharePriceRepository.save(new SharePrice(providerQuery.getProviderQueryId(), symbol.getIsin(), symbol.getSymbol(), date, OpenHighCloseLow.OPEN, openPrice, volume));
+                    sharePriceRepository.save(new SharePrice(providerQuery.getProviderQueryId(), symbol.getIsin(), symbol.getSymbol(), date, OpenHighCloseLow.HIGH, highPrice, volume));
+                    sharePriceRepository.save(new SharePrice(providerQuery.getProviderQueryId(), symbol.getIsin(), symbol.getSymbol(), date, OpenHighCloseLow.CLOSE, lowPrice, volume));
+                    sharePriceRepository.save(new SharePrice(providerQuery.getProviderQueryId(), symbol.getIsin(), symbol.getSymbol(), date, OpenHighCloseLow.LOW, closePrice, volume));
+                }
+                LOG.info("Retrieved time series from " + providerQuery.getName() + " for " + symbol.getIsin() + "(" + symbol.getSymbol() + ")");
             }
-            Map<String, Map<String, String>> map = (Map<String, Map<String, String>>)response.getBody().get(key.get());
-            for (Map.Entry<String, Map<String, String>> entry : map.entrySet()) {
-                Date date = df.parse(entry.getKey());
-                Map<String, String> price = entry.getValue();
-                double openPrice = Double.parseDouble(price.get("1. open"));
-                double highPrice = Double.parseDouble(price.get("2. high"));
-                double lowPrice = Double.parseDouble(price.get("3. low"));
-                double closePrice = Double.parseDouble(price.get("4. close"));
-                long volume = Long.parseLong(price.get("5. volume"));
-                sharePriceRepository.save(new SharePrice(providerQuery.getProviderQueryId(), symbol.getIsin(), symbol.getSymbol(), date, OpenHighCloseLow.OPEN, openPrice, volume));
-                sharePriceRepository.save(new SharePrice(providerQuery.getProviderQueryId(), symbol.getIsin(), symbol.getSymbol(), date, OpenHighCloseLow.HIGH, highPrice, volume));
-                sharePriceRepository.save(new SharePrice(providerQuery.getProviderQueryId(), symbol.getIsin(), symbol.getSymbol(), date, OpenHighCloseLow.CLOSE, lowPrice, volume));
-                sharePriceRepository.save(new SharePrice(providerQuery.getProviderQueryId(), symbol.getIsin(), symbol.getSymbol(), date, OpenHighCloseLow.LOW, closePrice, volume));
-            }
-            LOG.info("Retrieved time series from " + providerQuery.getName() + " for " + symbol.getIsin() + "(" + symbol.getSymbol() + ")");
         } catch (ParseException e) {
             throw new IllegalStateException(e);
         }
@@ -145,29 +150,35 @@ public class Alphavantage implements TimeSeriesProvider {
             sb.append(apikey);
             LOG.info(new String(sb));
             ResponseEntity<Map> response = restTemplate.getForEntity(new String(sb), Map.class);
-            Optional<String> key = response.getBody().keySet().stream().filter(f -> !"Meta Data".equals(f)).findFirst();
-            if (!key.isPresent()) {
-                throw new IllegalStateException("Cannot find non Meta Data key");
+            String errorMessage = (String) response.getBody().get("Error Message");
+            if (errorMessage != null) {
+                LOG.error(errorMessage);
+            } else {
+                Optional<String> key = response.getBody().keySet().stream().filter(f -> !"Meta Data".equals(f)).findFirst();
+                if (!key.isPresent()) {
+                    throw new IllegalStateException("Cannot find non Meta Data key");
+                }
+                Map<String, Map<String, String>> map = (Map<String, Map<String, String>>) response.getBody().get(key.get());
+                for (Map.Entry<String, Map<String, String>> entry : map.entrySet()) {
+                    Date date = df.parse(entry.getKey());
+                    Map<String, String> price = entry.getValue();
+                    double openPrice = Double.parseDouble(price.get("1. open"));
+                    double highPrice = Double.parseDouble(price.get("2. high"));
+                    double lowPrice = Double.parseDouble(price.get("3. low"));
+                    double closePrice = Double.parseDouble(price.get("4. close"));
+                    exchangeRateRepository.save(new ExchangeRate(fromCurrency.getIso4217(), toCurrency.getIso4217(),
+                            providerQuery.getProviderQueryId(), date, OpenHighCloseLow.OPEN, openPrice));
+                    exchangeRateRepository.save(new ExchangeRate(fromCurrency.getIso4217(), toCurrency.getIso4217(),
+                            providerQuery.getProviderQueryId(), date, OpenHighCloseLow.HIGH, highPrice));
+                    exchangeRateRepository.save(new ExchangeRate(fromCurrency.getIso4217(), toCurrency.getIso4217(),
+                            providerQuery.getProviderQueryId(), date, OpenHighCloseLow.CLOSE, closePrice));
+                    exchangeRateRepository.save(new ExchangeRate(fromCurrency.getIso4217(), toCurrency.getIso4217(),
+                            providerQuery.getProviderQueryId(), date, OpenHighCloseLow.LOW, lowPrice));
+                }
             }
-            Map<String, Map<String, String>> map = (Map<String, Map<String, String>>)response.getBody().get(key.get());
-            for (Map.Entry<String, Map<String, String>> entry : map.entrySet()) {
-                Date date = df.parse(entry.getKey());
-                Map<String, String> price = entry.getValue();
-                double openPrice = Double.parseDouble(price.get("1. open"));
-                double highPrice = Double.parseDouble(price.get("2. high"));
-                double lowPrice = Double.parseDouble(price.get("3. low"));
-                double closePrice = Double.parseDouble(price.get("4. close"));
-                exchangeRateRepository.save(new ExchangeRate(fromCurrency.getIso4217(), toCurrency.getIso4217(),
-                        providerQuery.getProviderQueryId(), date, OpenHighCloseLow.OPEN, openPrice));
-                exchangeRateRepository.save(new ExchangeRate(fromCurrency.getIso4217(), toCurrency.getIso4217(),
-                        providerQuery.getProviderQueryId(), date, OpenHighCloseLow.HIGH, highPrice));
-                exchangeRateRepository.save(new ExchangeRate(fromCurrency.getIso4217(), toCurrency.getIso4217(),
-                        providerQuery.getProviderQueryId(), date, OpenHighCloseLow.CLOSE, closePrice));
-                exchangeRateRepository.save(new ExchangeRate(fromCurrency.getIso4217(), toCurrency.getIso4217(),
-                        providerQuery.getProviderQueryId(), date, OpenHighCloseLow.LOW, lowPrice));
-            }
+            LOG.info("Retrieved time series from " + providerQuery.getName() + " for " + fromCurrency.getIso4217() + "2" + toCurrency.getIso4217());
             return true;
-        } catch (ParseException e) {
+        } catch(ParseException e){
             throw new IllegalStateException(e);
         }
     }

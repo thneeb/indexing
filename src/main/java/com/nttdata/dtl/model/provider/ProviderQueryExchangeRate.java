@@ -8,28 +8,18 @@ import java.util.Date;
 import java.util.Objects;
 
 @Entity
-@IdClass(ProviderQuerySecuritySymbolId.class)
-public class ProviderQuerySecuritySymbol {
+@IdClass(ProviderQueryExchangeRateId.class)
+public class ProviderQueryExchangeRate {
     @Id
     private int providerQueryId;
     @Id
-    @Column(length = 12)
-    private String isin;
-    @Column(length = 20)
-    private String symbol;
+    @Column(length = 3, nullable = false)
+    private String currencyFrom;
+    @Id
+    @Column(length = 3, nullable = false)
+    private String currencyTo;
     private Integer intervalInMinutes;
     private Date lastRun;
-
-    public ProviderQuerySecuritySymbol() {
-    }
-
-    public ProviderQuerySecuritySymbol(int providerQueryId, String isin, String symbol, int intervalInMinutes, Date lastRun) {
-        this.providerQueryId = providerQueryId;
-        this.isin = isin;
-        this.symbol = symbol;
-        this.intervalInMinutes = intervalInMinutes;
-        this.lastRun = lastRun;
-    }
 
     public int getProviderQueryId() {
         return providerQueryId;
@@ -39,20 +29,20 @@ public class ProviderQuerySecuritySymbol {
         this.providerQueryId = providerQueryId;
     }
 
-    public String getIsin() {
-        return isin;
+    public String getCurrencyFrom() {
+        return currencyFrom;
     }
 
-    public void setIsin(String isin) {
-        this.isin = isin;
+    public void setCurrencyFrom(String currencyFrom) {
+        this.currencyFrom = currencyFrom;
     }
 
-    public String getSymbol() {
-        return symbol;
+    public String getCurrencyTo() {
+        return currencyTo;
     }
 
-    public void setSymbol(String symbol) {
-        this.symbol = symbol;
+    public void setCurrencyTo(String currencyTo) {
+        this.currencyTo = currencyTo;
     }
 
     public Integer getIntervalInMinutes() {
@@ -75,23 +65,23 @@ public class ProviderQuerySecuritySymbol {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ProviderQuerySecuritySymbol that = (ProviderQuerySecuritySymbol) o;
+        ProviderQueryExchangeRate that = (ProviderQueryExchangeRate) o;
         return providerQueryId == that.providerQueryId &&
-                Objects.equals(isin, that.isin) &&
-                Objects.equals(symbol, that.symbol);
+                Objects.equals(currencyFrom, that.currencyFrom) &&
+                Objects.equals(currencyTo, that.currencyTo);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(providerQueryId, isin, symbol);
+        return Objects.hash(providerQueryId, currencyFrom, currencyTo);
     }
 
     @Override
     public String toString() {
-        return "ProviderQuerySecuritySymbol{" +
+        return "ProviderQueryExchangeRate{" +
                 "providerQueryId=" + providerQueryId +
-                ", isin='" + isin + '\'' +
-                ", symbol='" + symbol + '\'' +
+                ", currencyFrom='" + currencyFrom + '\'' +
+                ", currencyTo='" + currencyTo + '\'' +
                 ", intervalInMinutes=" + intervalInMinutes +
                 ", lastRun=" + lastRun +
                 '}';

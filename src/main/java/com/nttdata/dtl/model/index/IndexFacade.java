@@ -147,13 +147,6 @@ public class IndexFacade {
         return entity;
     }
 
-    public void calculateVariation(int variationId, CalculationConfig calculationConfig) {
-        calculateDao.deleteCalculateSecurity(variationId, calculationConfig);
-        calculateDao.insertCalculateSecuritySimple(variationId, calculationConfig);
-        calculateDao.deleteCalculateIndex(variationId, calculationConfig);
-        calculateDao.insertCalculateIndex(variationId, calculationConfig);
-    }
-
     public IndexVariationProviderExchange insertProviderExchange(IndexVariationProviderExchange entity, boolean force) throws PrivilegedActionException {
         List<IndexVariationProviderExchange> list = new ArrayList<>();
         indexVariationProviderExchangeRepository.findByVariationIdAndCurrencyFromAndCurrencyToOrderByValidFrom(entity.getVariationId(), entity.getCurrencyFrom(), entity.getCurrencyTo()).forEach(list::add);
@@ -161,5 +154,12 @@ public class IndexFacade {
         indexVariationProviderExchangeRepository.saveAll(save);
         entity = indexVariationProviderExchangeRepository.save(entity);
         return entity;
+    }
+
+    public void calculateVariation(int variationId, CalculationConfig calculationConfig) {
+        calculateDao.deleteCalculateSecurity(variationId, calculationConfig);
+        calculateDao.insertCalculateSecuritySimple(variationId, calculationConfig);
+        calculateDao.deleteCalculateIndex(variationId, calculationConfig);
+        calculateDao.insertCalculateIndex(variationId, calculationConfig);
     }
 }

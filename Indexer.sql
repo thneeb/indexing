@@ -56,51 +56,6 @@ INSERT INTO open_high_close_low VALUES (1, 'HIGH');
 INSERT INTO open_high_close_low VALUES (2, 'CLOSE');
 INSERT INTO open_high_close_low VALUES (3, 'LOW');
 
-CREATE TABLE provider (
-  provider_id INT NOT NULL AUTO_INCREMENT,
-  name VARCHAR(50),
-  PRIMARY KEY (provider_id)
-);
-
-INSERT INTO provider (name) VALUES ('Alphavantage');
-
-CREATE TABLE provider_query (
-  provider_id INT NOT NULL,
-  provider_query_id INT NOT NULL AUTO_INCREMENT,
-  share_exchange VARCHAR(1),
-  variation VARCHAR(10),
-  PRIMARY KEY (provider_query_id)
-);
-ALTER TABLE provider_query ADD FOREIGN KEY (provider_id) REFERENCES provider(provider_id);
-
-INSERT INTO provider_query (provider_id, share_exchange, variation) VALUES (1, 'S', 'DAILY');
-INSERT INTO provider_query (provider_id, share_exchange, variation) VALUES (1, 'S', 'DAILY');
-INSERT INTO provider_query (provider_id, share_exchange, variation) VALUES (1, 'E', 'DAILY');
-INSERT INTO provider_query (provider_id, share_exchange, variation) VALUES (1, 'E', 'DAILY');
-
-CREATE TABLE exchange_rate (
-  currency_from VARCHAR(3) NOT NULL,
-  currency_to VARCHAR(3) NOT NULL,
-  provider_query_id INT NOT NULL,
-  timestamp DATETIME NOT NULL,
-  rate DECIMAL(10, 4) NOT NULL,
-  PRIMARY KEY (currency_from, currency_to, provider_query_id, timestamp)
-);
-
-ALTER TABLE exchange_rate ADD FOREIGN KEY (currency_from) REFERENCES currency (iso4217);
-ALTER TABLE exchange_rate ADD FOREIGN KEY (currency_to) REFERENCES currency (iso4217);
-ALTER TABLE exchange_rate ADD FOREIGN KEY (provider_query_id) REFERENCES provider_query(provider_query_id);
-ALTER TABLE exchange_rate ADD FOREIGN KEY (timestamp) REFERENCES time_series(the_date);
-
--- Insert all exchange rate from X => X as 1
-INSERT INTO exchange_rate (
-SELECT iso4217, iso4217, pv.provider_query_id, ts.the_date, 1
-FROM currency c
-JOIN provider_query pv
-JOIN time_series ts
-WHERE pv.share_exchange = 'E'
-);
-
 CREATE TABLE symbol_origin (
   origin VARCHAR(50) NOT NULL,
   PRIMARY KEY (origin)
@@ -133,6 +88,75 @@ ALTER TABLE security_symbol ADD FOREIGN KEY (isin) REFERENCES security(isin);
 ALTER TABLE security_symbol ADD FOREIGN KEY (origin) REFERENCES symbol_origin(origin);
 ALTER TABLE security_symbol ADD FOREIGN KEY (currency) REFERENCES currency(iso4217);
 
+CREATE TABLE provider (
+  provider_id INT NOT NULL AUTO_INCREMENT,
+  name VARCHAR(50),
+  PRIMARY KEY (provider_id)
+);
+
+INSERT INTO provider (name) VALUES ('Alphavantage');
+
+CREATE TABLE provider_query (
+  provider_id INT NOT NULL,
+  provider_query_id INT NOT NULL AUTO_INCREMENT,
+  share_exchange VARCHAR(1),
+  variation VARCHAR(10),
+  PRIMARY KEY (provider_query_id)
+);
+ALTER TABLE provider_query ADD FOREIGN KEY (provider_id) REFERENCES provider(provider_id);
+
+INSERT INTO provider_query (provider_id, provider_query_id, share_exchange, name) VALUES (1, 1, 1, 'INTRADAY');
+INSERT INTO provider_query (provider_id, provider_query_id, share_exchange, name) VALUES (1, 2, 0, 'INTRADAY');
+INSERT INTO provider_query (provider_id, provider_query_id, share_exchange, name) VALUES (1, 3, 0, 'DAILY');
+INSERT INTO provider_query (provider_id, provider_query_id, share_exchange, name) VALUES (1, 4, 1, 'DAILY');
+
+CREATE TABLE provider_query_security_symbol (
+	provider_query_id INT NOT NULL,
+	isin VARCHAR(12) NOT NULL,
+	symbol VARCHAR(20) NOT NULL,
+	interval_in_minutes INT,
+	last_run DATE,
+	PRIMARY KEY (provider_query_id, isin, symbol)
+);
+
+ALTER TABLE provider_query_security_symbol ADD FOREIGN KEY (provider_query_id) REFERENCES provider_query (provider_query_id);
+ALTER TABLE provider_query_security_symbol ADD FOREIGN KEY (isin, symbol) REFERENCES security_symbol (isin, symbol);
+
+CREATE TABLE provider_query_exchange_rate (
+	provider_query_id INT NOT NULL,
+	currency_from VARCHAR(3) NOT NULL,
+	currency_to VARCHAR(3) NOT NULL,
+	interval_in_minutes INT,
+	last_run DATETIME,
+	PRIMARY KEY (provider_query_id, currency_from, currency_to)
+);
+
+ALTER TABLE provider_query_exchange_rate ADD FOREIGN KEY (provider_query_id) REFERENCES provider_query (provider_query_id);
+ALTER TABLE provider_query_exchange_rate ADD FOREIGN KEY (currency_from) REFERENCES currency (iso4217);
+ALTER TABLE provider_query_exchange_rate ADD FOREIGN KEY (currency_to) REFERENCES currency (iso4217);
+
+INSERT INTO provider_query_exchange_rate (provider_query_id, currency_from, currency_to)
+SELECT pq.provider_query_id, cf.iso4217, ct.iso4217
+FROM provider_query pq, currency cf, currency ct
+WHERE pq.share_exchange = 1
+AND cf.iso4217 <> ct.iso4217
+;
+
+
+CREATE TABLE exchange_rate (
+  currency_from VARCHAR(3) NOT NULL,
+  currency_to VARCHAR(3) NOT NULL,
+  provider_query_id INT NOT NULL,
+  timestamp DATETIME NOT NULL,
+  rate DECIMAL(10, 4) NOT NULL,
+  PRIMARY KEY (currency_from, currency_to, provider_query_id, timestamp)
+);
+
+ALTER TABLE exchange_rate ADD FOREIGN KEY (currency_from) REFERENCES currency (iso4217);
+ALTER TABLE exchange_rate ADD FOREIGN KEY (currency_to) REFERENCES currency (iso4217);
+ALTER TABLE exchange_rate ADD FOREIGN KEY (provider_query_id) REFERENCES provider_query(provider_query_id);
+ALTER TABLE exchange_rate ADD FOREIGN KEY (timestamp) REFERENCES time_series(the_date);
+
 CREATE TABLE share_price (
   provider_query_id INT NOT NULL,
   isin VARCHAR(12) NOT NULL,
@@ -143,11 +167,6 @@ CREATE TABLE share_price (
   volume INT NOT NULL,
   PRIMARY KEY (provider_query_id, isin, symbol, timestamp, open_high_close_low)
 );
-
-INSERT INTO share_price (provider_query_id, isin, timestamp, price, volume) VALUES (LAST_INSERT_ID(), 'US5949181045', '2018-12-14', 106.0300, 46959680);
-INSERT INTO share_price (provider_query_id, isin, timestamp, price, volume) VALUES (LAST_INSERT_ID(), 'US5949181045', '2018-12-13', 109.4500, 31333362);
-INSERT INTO share_price (provider_query_id, isin, timestamp, price, volume) VALUES (2, 'US5949181045', '2018-12-14', 105.5000, 46959680);
-INSERT INTO share_price (provider_query_id, isin, timestamp, price, volume) VALUES (2, 'US5949181045', '2018-12-13', 108.6300, 31333362);
 
 ALTER TABLE share_price ADD FOREIGN KEY (provider_query_id) REFERENCES provider_query(provider_query_id);
 ALTER TABLE share_price ADD FOREIGN KEY (isin, symbol) REFERENCES security_symbol(isin, symbol);
@@ -197,7 +216,7 @@ CREATE TABLE index_variation_security (
 ALTER TABLE index_variation_security ADD FOREIGN KEY (timespan_id) REFERENCES index_variation_timespan(timespan_id);
 ALTER TABLE index_variation_security ADD FOREIGN KEY (isin) REFERENCES security(isin);
 
-CREATE TABLE index_variation_provider (
+CREATE TABLE index_variation_provider_security (
   symbol_id INT NOT NULL,
   provider_query_id INT NOT NULL,
   variation_id INT NOT NULL,
@@ -210,12 +229,12 @@ CREATE TABLE index_variation_provider (
 );
 
 -- warum geht das hier nicht :-(
-ALTER TABLE index_variation_provider ADD FOREIGN KEY (isin, symbol, provider_query_id) REFERENCES provider_query_security_symbol (isin, symbol, provider_query_id);
-ALTER TABLE index_variation_provider ADD FOREIGN KEY (isin, symbol) REFERENCES security_symbol (isin, symbol);
-ALTER TABLE index_variation_provider ADD FOREIGN KEY (variation_id) REFERENCES index_variation(variation_id);
-ALTER TABLE index_variation_provider ADD FOREIGN KEY (provider_query_id) REFERENCES provider_query(provider_query_id);
-ALTER TABLE index_variation_provider ADD FOREIGN KEY (valid_from) REFERENCES time_series(the_date);
-ALTER TABLE index_variation_provider ADD FOREIGN KEY (valid_to) REFERENCES time_series(the_date);
+ALTER TABLE index_variation_provider_security ADD FOREIGN KEY (isin, symbol, provider_query_id) REFERENCES provider_query_security_symbol (isin, symbol, provider_query_id);
+ALTER TABLE index_variation_provider_security ADD FOREIGN KEY (isin, symbol) REFERENCES security_symbol (isin, symbol);
+ALTER TABLE index_variation_provider_security ADD FOREIGN KEY (variation_id) REFERENCES index_variation(variation_id);
+ALTER TABLE index_variation_provider_security ADD FOREIGN KEY (provider_query_id) REFERENCES provider_query(provider_query_id);
+ALTER TABLE index_variation_provider_security ADD FOREIGN KEY (valid_from) REFERENCES time_series(the_date);
+ALTER TABLE index_variation_provider_security ADD FOREIGN KEY (valid_to) REFERENCES time_series(the_date);
 
 alter table calc_security add primary key (variation_id, timestamp, isin, name);
 
@@ -347,7 +366,32 @@ LEFT JOIN (
 
 INSERT INTO calc_security (SELECT 'CALC1', css.* FROM vw_calc_security_simple css WHERE css.variation_id = 14 AND css.open_high_close_low = 'CLOSE');
 
+CREATE TABLE calc_index (
+	variation_id INT NOT NULL,
+	name VARCHAR(50) NOT NULL,
+	the_date DATETIME NOT NULL,
+	index_value DOUBLE NOT NULL,
+	PRIMARY KEY (variation_id, name, the_date)
+);
 
+INSERT INTO calc_index (
+SELECT variation_id, name, the_date, SUM(price * exchange_rate * weight) AS index_value
+FROM calc_security
+WHERE variation_id = ?
+AND name = ?
+GROUP BY variation_id, name, the_date
+)
+;
+
+SELECT the_date, index_value
+FROM calc_index
+WHERE variation_id = 14
+AND name = 'CALC2'
+INTO OUTFILE '/tmp/index.csv'
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+;
 
 
 SELECT *
