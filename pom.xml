@@ -161,7 +161,7 @@
 				<artifactId>exec-maven-plugin</artifactId>
 				<version>1.5.0</version>
 				<configuration>
-					<mainClass>com.nttdata.dtl.Application</mainClass>
+					<mainClass>de.neebs.indexing.Application</mainClass>
 				</configuration>
 			</plugin>
 		</plugins>

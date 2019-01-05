@@ -1,0 +1,115 @@
+package de.neebs.indexing.model.common;
+
+import org.springframework.stereotype.Component;
+
+import java.util.Arrays;
+import java.util.List;
+
+@Component
+public class ShareFactory {
+    private Security KR7098460009 = new Security("KR7098460009", "KOH YOUNG TECHNOLOGY INC");
+    private Security KYG014081064 = new Security("KYG014081064", "AIRTAC INTERNATIONAL GROUP");
+    private Security TW0002049004 = new Security("TW0002049004", "HIWIN TECHNOLOGIES");
+    private Security TW0002308004 = new Security("TW0002308004", "DELTA ELECTRONICS INC");
+    private Security TW0002395001 = new Security("TW0002395001", "ADVANTECH CO LTD ORD");
+    private Security JP3592600005 = new Security("JP3592600005", "TOSHIBA MACHINE CO LTD");
+    private Security JP3102400003 = new Security("JP3102400003", "AIDA ENGINEERING LTD");
+    private Security JP3809200003 = new Security("JP3809200003", "FUJI CORP");
+    private Security JP3651210001 = new Security("JP3651210001", "NABTESCO CORP ORD");
+    private Security JP3162600005 = new Security("JP3162600005", "SMC CORP ORD");
+    private Security JP3765150002 = new Security("JP3765150002", "HARMONIC DRIVE SYSTEMS INC");
+    private Security JP3497400006 = new Security("JP3497400006", "DAIFUKU CO LTD");
+    private Security JP3124400007 = new Security("JP3124400007", "AMANO CORPORATION");
+    private Security JP3813200007 = new Security("JP3813200007", "NACHI-FUJIKOSHI CORP ORD");
+    private Security JP3539250005 = new Security("JP3539250005", "THK CO LTD ORD");
+    private Security JP3944500002 = new Security("JP3944500002", "YUSHIN PRECISION EQUIPMENT");
+    private Security JP3902400005 = new Security("JP3902400005", "MITSUBISHI ELECTRIC CORP");
+    private Security JP3932000007 = new Security("JP3932000007", "YASKAWA ELECTRIC CORP ORD");
+    private Security JP3497800007 = new Security("JP3497800007", "DAIHEN CORP");
+    private Security JP3197800000 = new Security("JP3197800000", "OMRON CORP ORD");
+    private Security JP3955000009 = new Security("JP3955000009", "YOKOGAWA ELECTRIC CORP ORD");
+    private Security JP3236200006 = new Security("JP3236200006", "KEYENCE CORP ORD");
+    private Security JP3551500006 = new Security("JP3551500006", "DENSO CORP ORD");
+    private Security JP3197700002 = new Security("JP3197700002", "OPTEX GROUP CO LTD");
+    private Security JP3802400006 = new Security("JP3802400006", "FANUC CORP");
+    private Security JP3630400004 = new Security("JP3630400004", "TOPCON CORP");
+    private Security CH0012221716 = new Security("CH0012221716", "ABB LTD-REG");
+    private Security US0527691069 = new Security("US0527691069", "AUTODESK INC");
+    private Security DE000A111338 = new Security("DE000A111338", "SLM SOLUTIONS GROUP AG");
+    private Security KYG037AX1015 = new Security("KYG037AX1015", "AMBARELLA INC");
+    private Security US0043971052 = new Security("US0043971052", "ACCURAY INC");
+    private Security CA0019401052 = new Security("CA0019401052", "ATS AUTOMATION TOOLING SYSTEMS INC");
+    private Security US0080731088 = new Security("US0080731088", "AEROVIRONMENT INC");
+    private Security US1143401024 = new Security("US1143401024", "BROOKS AUTOMATION INC");
+    private Security DE0005102008 = new Security("DE0005102008", "BASLER AG");
+    private Security US1273871087 = new Security("US1273871087", "CADENCE DESIGN SYSTEMS INC");
+    private Security FI0009013429 = new Security("FI0009013429", "CARGOTEC OYJ CLASS B");
+    private Security US1924221039 = new Security("US1924221039", "COGNEX CORP");
+    private Security FR0000130650 = new Security("FR0000130650", "DASSAULT SYSTEMES SA");
+    private Security US88554D2053 = new Security("US88554D2053", "3D SYSTEMS CORP");
+    private Security US2441991054 = new Security("US2441991054", "DEERE & CO");
+    private Security DE0005565204 = new Security("DE0005565204", "DUERR AG");
+    private Security SE0000163628 = new Security("SE0000163628", "ELEKTA AB");
+    private Security US3116421021 = new Security("US3116421021", "FARO TECHNOLOGIES INC");
+    private Security US3024451011 = new Security("US3024451011", "FLIR SYSTEMS INC");
+    private Security DE0006602006 = new Security("DE0006602006", "GEA GROUP AKTIENGESELLSCHAFT");
+    private Security SE0000103699 = new Security("SE0000103699", "HEXAGON AB CLASS B");
+    private Security US42330P1075 = new Security("US42330P1075", "HELIX ENERGY SOLUTIONS GROUP");
+    private Security VGG456671053 = new Security("VGG456671053", "HOLLYSYS AUTOMATION TECHNOLO");
+    private Security US44980X1090 = new Security("US44980X1090", "IPG PHOTONICS CORP");
+    private Security US4627261005 = new Security("US4627261005", "IROBOT CORP");
+    private Security DE0005488100 = new Security("DE0005488100", "ISRA VISION AG");
+    private Security US46120E6023 = new Security("US46120E6023", "INTUITIVE SURGICAL INC");
+    private Security US4778391049 = new Security("US4778391049", "JOHN BEAN TECHNOLOGIES CORP");
+    private Security DE000A2NB601 = new Security("DE000A2NB601", "JENOPTIK AG");
+    private Security CH0100837282 = new Security("CH0100837282", "KARDEX AG-REG");
+    private Security DE000KGX8881 = new Security("DE000KGX8881", "KION GROUP AG");
+    private Security DE0006335003 = new Security("DE0006335003", "KRONES AG");
+    private Security US5339001068 = new Security("US5339001068", "LINCOLN ELECTRIC HOLDINGS");
+    private Security US5627501092 = new Security("US5627501092", "MANHATTAN ASSOCIATES INC");
+    private Security CA57778L1031 = new Security("CA57778L1031", "MAXAR TECHNOLOGIES LTD");
+    private Security US5950171042 = new Security("US5950171042", "MICROCHIP TECHNOLOGY INC");
+    private Security IL0011068553 = new Security("IL0011068553", "MAZOR ROBOTICS LTD");
+    private Security US6365181022 = new Security("US6365181022", "NATIONAL INSTRUMENTS CORP");
+    private Security US6556631025 = new Security("US6556631025", "NORDSON CORP");
+    private Security CA67000B1040 = new Security("CA67000B1040", "NOVANTA INC");
+    private Security US67020Y1001 = new Security("US67020Y1001", "NUANCE COMMUNICATIONS INC");
+    private Security US67066G1040 = new Security("US67066G1040", "NVIDIA CORP");
+    private Security GB00B3MBS747 = new Security("GB00B3MBS747", "OCADO GROUP PLC");
+    private Security US6752321025 = new Security("US6752321025", "OCEANEERING INTL INC");
+    private Security US69370C1009 = new Security("US69370C1009", "PARAMETRIC TECHNOLOGY CORP");
+    private Security US7475251036 = new Security("US7475251036", "QUALCOMM INC");
+    private Security NL0012169213 = new Security("NL0012169213", "QIAGEN NV");
+    private Security US7542121089 = new Security("US7542121089", "RAVEN INDUSTRIES INC");
+    private Security US7739031091 = new Security("US7739031091", "ROCKWELL AUTOMATION INC");
+    private Security GB0007323586 = new Security("GB0007323586", "RENISHAW PLC");
+    private Security FR0000121972 = new Security("FR0000121972", "SCHNEIDER ELECTRIC SE");
+    private Security DE0007236101 = new Security("DE0007236101", "SIEMENS AG");
+    private Security IL0011267213 = new Security("IL0011267213", "STRATASYS LTD");
+    private Security US8793601050 = new Security("US8793601050", "TELEDYNE TECHNOLOGIES INC");
+    private Security CH0012100191 = new Security("CH0012100191", "TECAN GROUP AG-REG");
+    private Security US8807701029 = new Security("US8807701029", "TERADYNE INC");
+    private Security US8962391004 = new Security("US8962391004", "TRIMBLE INC");
+    private Security CH0033361673 = new Security("CH0033361673", "U-BLOX AG");
+    private Security US92220P1057 = new Security("US92220P1057", "VARIAN MEDICAL SYSTEMS INC");
+    private Security US9839191015 = new Security("US9839191015", "XILINX INC");
+    private Security US9892071054 = new Security("US9892071054", "ZEBRA TECHNOLOGIES CORP");
+
+    private Security US5949181045 = new Security("US5949181045", "Microsoft Corporation");
+
+    public List<Security> listShares() {
+        return Arrays.asList(US5949181045, US9892071054, US9839191015, US92220P1057, CH0033361673, US8962391004,
+                US8807701029, CH0012100191, US8793601050, IL0011267213, DE0007236101, FR0000121972, GB0007323586,
+                US7739031091, US7542121089, NL0012169213, US7475251036, US69370C1009, US6752321025, GB00B3MBS747,
+                US67066G1040, US67020Y1001, CA67000B1040, US6556631025, US6365181022, IL0011068553, US5950171042,
+                CA57778L1031, US5627501092, US5339001068, DE0006335003, DE000KGX8881, CH0100837282, DE000A2NB601,
+                US4778391049, US46120E6023, DE0005488100, US4627261005, US44980X1090, VGG456671053, US42330P1075,
+                SE0000103699, DE0006602006, US3024451011, US3116421021, SE0000163628, DE0005565204, US2441991054,
+                US88554D2053, FR0000130650, US1924221039, FI0009013429, US1273871087, DE0005102008, US1143401024,
+                US0080731088, CA0019401052, US0043971052, KYG037AX1015, DE000A111338, US0527691069, CH0012221716,
+                JP3630400004, JP3802400006, JP3197700002, JP3551500006, JP3236200006, JP3955000009, JP3197800000,
+                JP3497800007, JP3932000007, JP3902400005, JP3944500002, JP3539250005, JP3813200007, JP3124400007,
+                JP3497400006, JP3765150002, JP3162600005, JP3651210001, JP3809200003, JP3102400003, JP3592600005,
+                TW0002395001, TW0002308004, TW0002049004, KYG014081064, KR7098460009);
+    }
+}

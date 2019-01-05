@@ -9,12 +9,28 @@ use ticks
 
 What is next?
 -------------
-1. Analysen über die Tabelle SHARE_PRICE
-1a) Gibt Lücken und wenn ja welche? Mit rank() / 2 abgrundet bekommt man immer die benachbarten Elemente. Dann mit first_value() und last_Value die beiden Werte per Deivision vergleichen
-1b) Fehlen Werte in der Folge?
-2. Time_Series und Day_Series trennen und per FOREIGN KEY aufeinander verweisen lassen.
-3. Webservices für Provider und Provider_Query
-4. Webservices für die Pflege der Aktienpreisen / Wechselkurse
-5. Untersuchen, welche Währung für die japanischen Aktien, für die wir Symbols haben, Werte geliefert werden
+- Analysen über die Tabelle SHARE_PRICE
+-- Gibt Lücken und wenn ja welche?
+-- Fehlen Werte in der Folge?
+- Webservices für die Pflege der Aktienpreisen / Wechselkurse
+- Untersuchen, welche Währung für die japanischen Aktien, für die wir Symbols haben, Werte geliefert werden
+- Verification eines Index über einen gewissen Zeitraum
+-- Sind immer Securites definiert
+-- Ist für jede Security ein Provider definiert
+-- Ist der Provider für die Abschnitte definiert, wo die Security im Index vertreten ist
+-- Ist für jede verwendete Währung ein Provider definiert
+-- Ist der Provider für die Abschnitte definiert, wo die Währung im Index benötit wird
+-- Ergeben die Gewichtungen immer 1
+- Löschen von Zeitabschnitten in Security, Provider Exchange, Provider Security
+- Ändern von Abschnitten in Security, Provider Exchange, Provider Security
 
+Under construction
+------------------
+- Time_Series und Day_Series trennen und per FOREIGN KEY aufeinander verweisen lassen.
 
+Done
+----
+- Webservices für Provider und Provider_Query
+- Crawler für die Umtauschkurse
+- Analysen über die Tabelle SHARE_PRICE
+-- Gibt es Aktiensplits? Mit rank() / 2 abgrundet bekommt man immer die benachbarten Elemente. Dann mit first_value() und last_Value die beiden Werte per Deivision vergleichen

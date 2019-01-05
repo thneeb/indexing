@@ -46,6 +46,17 @@ OR DAYOFWEEK(the_date) = 6
 
 ALTER TABLE time_series_tag ADD PRIMARY KEY (the_date, tag);
 
+CREATE TABLE day_series (
+    the_date DATE NOT NULL,
+    PRIMARY KEY (the_date)
+);
+
+INSERT INTO day_series (the_date)
+SELECT DATE(the_date)
+FROM time_series
+GROUP BY DATE(the_date)
+;
+
 CREATE TABLE open_high_close_low (
   id INT NOT NULL,
   name VARCHAR(5) NOT NULL,
@@ -209,7 +220,7 @@ ALTER TABLE index_variation_timespan ADD FOREIGN KEY (valid_to) REFERENCES time_
 CREATE TABLE index_variation_security (
   timespan_id INT NOT NULL,
   isin VARCHAR(12) NOT NULL,
-  weight DOUBLE(10, 8) NOT NULL,
+  fraction DOUBLE(10, 8) NOT NULL,
   PRIMARY KEY (timespan_id, isin)
 );
 
@@ -316,7 +327,7 @@ CREATE TABLE calc_security (
   symbol VARCHAR(20) NOT NULL,
   open_high_close_low VARCHAR(5) NOT NULL,
   price DOUBLE NOT NULL,
-  weight DOUBLE NOT NULL,
+  fraction DOUBLE NOT NULL,
   symbol_currency VARCHAR(3) NOT NULL,
   exchange_rate DOUBLE NOT NULL,
   provider VARCHAR(50) NOT NULL,
@@ -328,7 +339,7 @@ CREATE TABLE calc_security (
 CREATE OR REPLACE VIEW vw_calc_security_simple AS
 SELECT iv.variation_id, now() AS timestamp, im.currency AS index_currency, ts.the_date, ivt.timespan_id, 
        s.name AS security_name, ivs.isin, price.symbol, ohcl.name as open_high_close_low, 
-       price.price, ivs.weight, price.currency AS symbol_currency, 
+       price.price, ivs.fraction, price.currency AS symbol_currency,
        CASE im.currency WHEN price.currency THEN 1 ELSE exchange.rate END AS exchange_rate,
 	   p.name AS provider, pq.name AS query, pq.provider_query_id
 FROM index_variation iv
@@ -373,9 +384,11 @@ CREATE TABLE calc_index (
 	index_value DOUBLE NOT NULL,
 	PRIMARY KEY (variation_id, name, the_date)
 );
+ALTER TABLE calc_index ADD FOREIGN KEY (variation_id) REFERENCES index_variation(variation_id);
+ALTER TABLE calc_index ADD FOREIGN KEY (the_date) REFERENCES time_series(the_date);
 
 INSERT INTO calc_index (
-SELECT variation_id, name, the_date, SUM(price * exchange_rate * weight) AS index_value
+SELECT variation_id, name, the_date, SUM(price * exchange_rate * fraction) AS index_value
 FROM calc_security
 WHERE variation_id = ?
 AND name = ?
@@ -393,32 +406,76 @@ ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
 ;
 
+-- Die folgenden SQLs können verwendet werden, um Sprünge im Kursverlauf festzustellen.
+
+CREATE VIEW vw_rate_between_two_quotes AS
+SELECT provider_query_id, isin, symbol, open_high_close_low, timestamp, price, price_before, volume
+FROM (
+    SELECT *
+    FROM (
+        SELECT FIRST_VALUE(price) OVER (PARTITION BY provider_query_id, isin, symbol, open_high_close_low, TRUNCATE(row_num / 2, 0) ORDER BY timestamp) AS price_before,
+               x.*
+        FROM (
+            SELECT ROW_NUMBER() OVER (PARTITION BY provider_query_id, isin, symbol, open_high_close_low ORDER BY timestamp) AS row_num, sp.*
+            FROM share_price sp
+        ) x
+    ) y1
+    WHERE row_num % 2 = 1
+    UNION ALL
+    SELECT *
+    FROM (
+        SELECT FIRST_VALUE(price) OVER (PARTITION BY provider_query_id, isin, symbol, open_high_close_low, TRUNCATE((row_num - 1) / 2, 0) ORDER BY timestamp) AS price_before,
+               x.*
+        FROM (
+            SELECT ROW_NUMBER() OVER (PARTITION BY provider_query_id, isin, symbol, open_high_close_low ORDER BY timestamp) AS row_num, sp.*
+            FROM share_price sp
+        ) x
+    ) y2
+    WHERE row_num % 2 = 0
+) z;
 
 SELECT *
-FROM (
-	SELECT * 
-	FROM (
-		SELECT im.currency as index_currency, ts.the_date, iv.index_variation_id,
-		       s.symbol, ivcs.price as orig_price, s.currency as share_currency, ivce.rate, NVL(ivcs.price, 0) * NVL(ivce.rate, 0) as index_price,
-			   row_number() over (partition by iv.index_variation_id, ivcs.isin, ts.the_date order by NVL(ivcs.weight, 0) * NVL(ivce.weight, 0)) as rn
-		FROM index_variation iv
-		JOIN index_masterdata im ON iv.masterdata_id = im.masterdata_id
-		JOIN index_variation_history ivh ON iv.index_variation_id = ivh.index_variation_id
-		JOIN time_series ts ON ts.the_date >= ivh.valid_from AND ts.the_date < ivh.valid_to
-		JOIN share s ON ivh.isin = s.isin
-		LEFT JOIN (
-			SELECT ivcs.weight, sp.timestamp, sp.isin, sp.price, ivcs.index_variation_id
-			FROM index_variation_config ivcs 
-			JOIN share_price sp ON sp.provider_query_id = ivcs.provider_query_id 
-		) ivcs ON iv.index_variation_id = ivcs.index_variation_id AND ts.the_date = ivcs.timestamp AND ivh.isin = ivcs.isin
-		LEFT JOIN (
-			SELECT ivce.weight, ivce.index_variation_id, er.currency_to, er.currency_from, er.timestamp, er.rate
-			FROM index_variation_config ivce
-			JOIN exchange_rate er ON er.provider_query_id = ivce.provider_query_id
-		) ivce ON iv.index_variation_id = ivce.index_variation_id AND im.currency = ivce.currency_to AND s.currency = ivce.currency_from AND ts.the_date = ivce.timestamp
-	) ranking
-	WHERE ranking.rn = 1
-) price
-WHERE index_variation_id = 1
-AND the_date = '2018-12-14'
+FROM vw_rate_between_two_quotes
+WHERE symbol = 'MSFT'
+AND provider_query_id = 3
+AND open_high_close_low = 0
+AND price / price_before < 0.85
+ORDER BY timestamp
+LIMIT 10
+;
+
+-- Welche disketen Zeitintervalle gibt es innerhalb des Zeitraums?
+
+WITH RECURSIVE cte (timespan_id, variation_id, valid_from, valid_to, uuid) as (
+  SELECT timespan_id, variation_id, valid_from, valid_to, UUID() AS uuid
+  FROM   index_variation_timespan ivt
+  WHERE  NOT EXISTS (SELECT 1 FROM index_variation_timespan WHERE valid_to = ivt.valid_from)
+  UNION ALL
+  SELECT ivt.timespan_id, ivt.variation_id, ivt.valid_from, ivt.valid_to, cte.uuid
+  FROM   index_variation_timespan ivt
+  JOIN   cte ON ivt.valid_from = cte.valid_to
+)
+CREATE VIEW vw_index_variation_discrete_timespan AS
+SELECT variation_id, uuid, MIN(valid_from) AS valid_from, MAX(valid_to) AS valid_to
+FROM cte
+GROUP BY variation_id, uuid
+ORDER BY valid_from
+;
+
+WITH RECURSIVE cte (variation_id, isin, valid_from, valid_to, uuid) as (
+  SELECT ivt.variation_id, ivs.isin, ivt.valid_from, ivt.valid_to, UUID() AS uuid
+  FROM   index_variation_timespan ivt
+  JOIN   index_variation_security ivs ON ivt.timespan_id = ivs.timespan_id
+  WHERE  NOT EXISTS (SELECT 1 FROM index_variation_timespan WHERE valid_to = ivt.valid_from)
+  UNION ALL
+  SELECT ivt.variation_id, ivs.isin, ivt.valid_from, ivt.valid_to, cte.uuid
+  FROM   index_variation_timespan ivt
+  JOIN   index_variation_security ivs ON ivt.timespan_id = ivs.timespan_id
+  JOIN   cte ON ivt.valid_from = cte.valid_to AND ivt.variation_id = cte.variation_id AND ivs.isin = cte.isin
+)
+SELECT variation_id, isin, uuid, MIN(valid_from) AS valid_from, MAX(valid_to) AS valid_to
+-- SELECT variation_id, isin, uuid, valid_from AS valid_from, valid_to AS valid_to
+FROM cte
+GROUP BY variation_id, isin, uuid
+ORDER BY isin, valid_from
 ;
