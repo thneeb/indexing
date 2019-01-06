@@ -3,9 +3,9 @@ package de.neebs.indexing.model.event;
 import java.util.Date;
 
 public interface CorporateEvent {
-    int getEventId();
+    Integer getEventId();
 
-    void setEventId(int eventId);
+    void setEventId(Integer eventId);
 
     String getIsin();
 

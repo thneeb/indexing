@@ -10,7 +10,7 @@ import java.util.Date;
 public abstract class AbstractCorporateEvent implements CorporateEvent {
     @Id
     @GeneratedValue
-    private int eventId;
+    private Integer eventId;
     @NotNull
     @Column(nullable = false, length = 12)
     private String isin;
@@ -19,12 +19,12 @@ public abstract class AbstractCorporateEvent implements CorporateEvent {
     private Date effectiveDate;
 
     @Override
-    public int getEventId() {
+    public Integer getEventId() {
         return eventId;
     }
 
     @Override
-    public void setEventId(int eventId) {
+    public void setEventId(Integer eventId) {
         this.eventId = eventId;
     }
 

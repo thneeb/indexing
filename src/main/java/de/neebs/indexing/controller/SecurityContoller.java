@@ -1,6 +1,8 @@
 package de.neebs.indexing.controller;
 
 import de.neebs.indexing.model.common.*;
+import de.neebs.indexing.model.event.Distribution;
+import de.neebs.indexing.model.event.DistributionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +24,9 @@ public class SecurityContoller {
 
     @Autowired
     private SecuritySymbolRepository securitySymbolRepository;
+
+    @Autowired
+    private DistributionRepository distributionRepository;
 
     @RequestMapping(value = "", method = RequestMethod.POST)
     public ResponseEntity<?> createSecurity(@RequestBody Security entity) {
@@ -49,15 +54,15 @@ public class SecurityContoller {
         }
     }
 
-    @RequestMapping(value = "/{isim}/symbol", method = RequestMethod.POST)
-    public ResponseEntity<?> createSymbol(@PathVariable String isim, @RequestBody SecuritySymbol entity) {
-        if (entity.getIsin() != null && !entity.getIsin().equals(isim)) {
+    @RequestMapping(value = "/{isin}/symbol", method = RequestMethod.POST)
+    public ResponseEntity<?> createSymbol(@PathVariable String isin, @RequestBody SecuritySymbol entity) {
+        if (entity.getIsin() != null && !entity.getIsin().equals(isin)) {
             return ResponseEntity.badRequest().build();
         }
-        if (securitySymbolRepository.existsById(new SecuritySymbolId(isim, entity.getSymbol()))) {
+        if (securitySymbolRepository.existsById(new SecuritySymbolId(isin, entity.getSymbol()))) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
-        entity.setIsin(isim);
+        entity.setIsin(isin);
         entity = securitySymbolRepository.save(entity);
         String reference = linkTo(methodOn(getClass()).findOneSymbol(entity.getIsin(), entity.getSymbol())).withSelfRel().getHref();
         return ResponseEntity.created(URI.create(reference)).body(entity);
@@ -68,6 +73,28 @@ public class SecurityContoller {
         Optional<SecuritySymbol> securitySymbol = securitySymbolRepository.findById(new SecuritySymbolId(isin, symbol));
         if (securitySymbol.isPresent()) {
             return ResponseEntity.ok(securitySymbol);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @RequestMapping(value = "/{isin}/distribution", method = RequestMethod.POST)
+    public ResponseEntity<Distribution> createDistribution(@PathVariable String isin, @RequestBody Distribution entity) {
+        entity.setEventId(null);
+        entity.setIsin(isin);
+        entity = distributionRepository.save(entity);
+        return ResponseEntity.created(URI.create(linkTo(methodOn(getClass()).findDistribution(isin, entity.getEventId())).withSelfRel().getHref())).body(entity);
+    }
+
+    @RequestMapping(value = "/{isin}/distribution/{eventId}", method = RequestMethod.GET)
+    public ResponseEntity<?> findDistribution(@PathVariable String isin, @PathVariable int eventId) {
+        Optional<Distribution> distribution = distributionRepository.findById(eventId);
+        if (distribution.isPresent()) {
+            if (distribution.get().getIsin().equals(isin)) {
+                return ResponseEntity.ok(distribution.get());
+            } else {
+                return ResponseEntity.notFound().build();
+            }
         } else {
             return ResponseEntity.notFound().build();
         }
