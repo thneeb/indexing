@@ -9,6 +9,7 @@ import java.security.PrivilegedActionException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class IndexFacade {
@@ -116,10 +117,12 @@ public class IndexFacade {
             // sind zwei Einträge davon betroffen, dann werden beide Einträge so angepasst, dass der neue Eintrag
             // überschneidungsfrei dazwischen liegt. Es darf dabei kein bestehender Eintrag wegfallen.
             for (T ivt : list) {
-                if (ivt.getValidFrom().before(timespan.getValidFrom())&& ivt.getValidTo().after(timespan.getValidFrom())&& ivt.getValidTo().before(timespan.getValidTo())) {
+                if (ivt.getValidFrom().before(timespan.getValidFrom())&& ivt.getValidTo().after(timespan.getValidFrom())
+                        && (ivt.getValidTo().before(timespan.getValidTo()) || ivt.getValidTo().equals(timespan.getValidTo()))) {
                     ivt.setValidTo(timespan.getValidFrom());
                     result.add(ivt);
-                } else if (ivt.getValidFrom().after(timespan.getValidFrom())&& ivt.getValidFrom().before(timespan.getValidTo()) && ivt.getValidTo().after(timespan.getValidTo())) {
+                } else if ((ivt.getValidFrom().after(timespan.getValidFrom()) || ivt.getValidFrom().equals(timespan.getValidFrom()))
+                        && ivt.getValidFrom().before(timespan.getValidTo()) && ivt.getValidTo().after(timespan.getValidTo())) {
                     ivt.setValidFrom(timespan.getValidTo());
                     result.add(ivt);
                 }
@@ -135,7 +138,7 @@ public class IndexFacade {
         List<IndexVariationTimespan> save = adjustTimespan(timespan, list, force);
         indexVariationTimespanRepository.saveAll(save);
         IndexVariationTimespan timespan2 = indexVariationTimespanRepository.save(timespan);
-        securities.forEach(f -> f.setTimespanId(timespan2.getTimespanId()));
+        securities = securities.stream().map(f -> new IndexVariationSecurity(timespan2.getTimespanId(), f.getIsin(), f.getFraction())).collect(Collectors.toList());
         indexVariationSecurityRepository.saveAll(securities);
         return timespan2;
     }

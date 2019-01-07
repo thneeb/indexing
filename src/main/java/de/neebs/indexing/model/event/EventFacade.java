@@ -1,6 +1,5 @@
 package de.neebs.indexing.model.event;
 
-import de.neebs.indexing.model.common.TimeSeriesFacade;
 import de.neebs.indexing.model.index.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,10 +85,12 @@ public class EventFacade implements ApplicationContextAware {
                     securities = savedSecurities;
                 }
 
+                actualDate = reviewDate;
+
                 if (reviewDate.before(toDate)) {
-                    IndexVariationTimespan newTimespan = new IndexVariationTimespan(variation.getVariationId(), reviewDate, timespan.getValidTo());
-                    newTimespan = indexFacade.insertTimespan(newTimespan, securities, true);
-                    securities = reviewProcessor.nextPeriod(newTimespan, securities);
+                    timespan = new IndexVariationTimespan(variation.getVariationId(), reviewDate, timespan.getValidTo());
+                    timespan = indexFacade.insertTimespan(timespan, securities, true);
+                    securities = reviewProcessor.nextPeriod(timespan, securities);
                     savedSecurities = new ArrayList<>();
                     indexVariationSecurityRepository.saveAll(securities).forEach(savedSecurities::add);
                     securities = savedSecurities;

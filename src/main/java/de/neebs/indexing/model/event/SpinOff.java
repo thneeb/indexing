@@ -1,5 +1,10 @@
 package de.neebs.indexing.model.event;
 
+import javax.persistence.Entity;
+import javax.persistence.Table;
+
+@Entity
+@Table(name = "event_spinoff")
 public class SpinOff extends AbstractCorporateEvent {
     private String spinOffIsin;
     private String spinOffSymbol;

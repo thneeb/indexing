@@ -22,7 +22,7 @@ spring:
       dialect: org.hibernate.dialect.MySQL5InnoDBDialect
       temp.use_jdbc_metadata_defaults: false
 #    hibernate.ddl-auto: create-drop
-    generate-ddl: true
+#    generate-ddl: true
 #logging:
 #  level:
 #    org.hibernate.SQL: debug
