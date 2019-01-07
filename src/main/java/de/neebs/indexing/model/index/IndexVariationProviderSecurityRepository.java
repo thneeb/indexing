@@ -15,7 +15,7 @@ public interface IndexVariationProviderSecurityRepository extends CrudRepository
             "FROM IndexVariationProviderSecurity ivps " +
             "WHERE variationId = :variationId " +
             "AND isin = :isin " +
-            "AND validFrom >= :timestamp AND validTo < :timestamp " +
+            "AND validFrom <= :timestamp AND validTo > :timestamp " +
             "ORDER BY quality")
     Iterable<IndexVariationProviderSecurity> findActualProvider(@Param("variationId") int variationId, @Param("isin") String isin, @Param("timestamp") Date timestamp);
 }

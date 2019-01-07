@@ -24,7 +24,7 @@ public class DistributionReinvestProcessor implements EventProcessor {
         Date dayBefore = eventHelper.getDayBefore(ce.getEffectiveDate());
         SharePrice sharePrice = eventHelper.getSharePrice(timespan.getVariationId(), ce.getIsin(), dayBefore);
         if (sharePrice == null) {
-            throw new IllegalStateException("Last closing price could not be calculated");
+            throw new IllegalStateException("Last closing price could not be calculated on " + dayBefore);
         }
         Optional<IndexVariationSecurity> ivs = securities.stream().filter(f -> f.getIsin().equals(ce.getIsin())).findFirst();
         if (ivs.isPresent()) {

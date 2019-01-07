@@ -106,7 +106,7 @@ public class EventFacade implements ApplicationContextAware {
         for (IndexEventProcessor iep : indexEventProcessorRepository.findByMasterdataId(masterdataId)) {
             try {
                 Class eventClass = Class.forName(iep.getEvent());
-                EventProcessor processor = applicationContext.getBean(EventProcessor.class, iep.getProcessor());
+                EventProcessor processor = applicationContext.getBean(iep.getProcessor(), EventProcessor.class);
                 map.put(eventClass, processor);
             } catch (ClassNotFoundException e) {
                 LOG.error("No class found for defined event", e);

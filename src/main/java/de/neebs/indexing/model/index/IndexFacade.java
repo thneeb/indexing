@@ -118,10 +118,10 @@ public class IndexFacade {
             // überschneidungsfrei dazwischen liegt. Es darf dabei kein bestehender Eintrag wegfallen.
             for (T ivt : list) {
                 if (ivt.getValidFrom().before(timespan.getValidFrom())&& ivt.getValidTo().after(timespan.getValidFrom())
-                        && (ivt.getValidTo().before(timespan.getValidTo()) || ivt.getValidTo().equals(timespan.getValidTo()))) {
+                        && !ivt.getValidTo().after(timespan.getValidTo())) {
                     ivt.setValidTo(timespan.getValidFrom());
                     result.add(ivt);
-                } else if ((ivt.getValidFrom().after(timespan.getValidFrom()) || ivt.getValidFrom().equals(timespan.getValidFrom()))
+                } else if (!ivt.getValidFrom().before(timespan.getValidFrom())
                         && ivt.getValidFrom().before(timespan.getValidTo()) && ivt.getValidTo().after(timespan.getValidTo())) {
                     ivt.setValidFrom(timespan.getValidTo());
                     result.add(ivt);
