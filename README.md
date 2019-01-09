@@ -34,3 +34,9 @@ Done
 - Crawler für die Umtauschkurse
 - Analysen über die Tabelle SHARE_PRICE
 -- Gibt es Aktiensplits? Mit rank() / 2 abgrundet bekommt man immer die benachbarten Elemente. Dann mit first_value() und last_Value die beiden Werte per Deivision vergleichen
+
+Clone from TEF
+--------------
+git config --global http.proxy 10.119.18.5:8080
+git config --global https.proxy 10.119.18.5:8080
+git -c http.sslVerify=false clone https://github.com/thneeb/indexing.git
