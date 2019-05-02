@@ -4,6 +4,9 @@ server:
     context-path: /indexing/v1
 alphavantage:
   apikey: J22355EMA6H0FCIS
+ultumus:
+  summaryUrl: https://uatapi.ultumus.com/MOORG/apps/v1/index/edge/composition
+  apiKey: o3wbw7QZvs5eInVdbNnz18SUkzl9Khjr43DxLOah
 spring:
   jackson:
     default-property-inclusion: non_null

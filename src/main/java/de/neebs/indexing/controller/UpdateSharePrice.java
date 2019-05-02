@@ -7,6 +7,7 @@ import de.neebs.indexing.model.common.SecuritySymbolId;
 import de.neebs.indexing.model.common.SecuritySymbolRepository;
 import de.neebs.indexing.model.provider.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -34,7 +35,7 @@ public class UpdateSharePrice {
     @Autowired
     private ProviderQueryExchangeRateRepository providerQueryExchangeRateRepository;
 
-//    @Scheduled(cron="*/25 * * * * *")
+    @Scheduled(cron="*/25 * * * * *")
     public void updateSecurityRate() {
         for (Provider provider : providerRepository.findAll()) {
             List<ProviderQuerySecuritySymbol> list = new ArrayList<>();
@@ -56,7 +57,7 @@ public class UpdateSharePrice {
         }
     }
 
-//    @Scheduled(cron="*/35 * * * * *")
+    @Scheduled(cron="*/35 * * * * *")
     public void updateExchangeRate() {
         for (Provider provider : providerRepository.findAll()) {
             List<ProviderQueryExchangeRate> list = new ArrayList<>();

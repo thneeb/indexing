@@ -18,6 +18,14 @@ public abstract class AbstractCorporateEvent implements CorporateEvent {
     @Column(nullable = false)
     private Date effectiveDate;
 
+    public AbstractCorporateEvent() {
+    }
+
+    public AbstractCorporateEvent(@NotNull String isin, @NotNull Date effectiveDate) {
+        this.isin = isin;
+        this.effectiveDate = effectiveDate;
+    }
+
     @Override
     public Integer getEventId() {
         return eventId;

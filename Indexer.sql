@@ -105,7 +105,8 @@ CREATE TABLE provider (
   PRIMARY KEY (provider_id)
 );
 
-INSERT INTO provider (name) VALUES ('Alphavantage');
+INSERT INTO provider (provider_id, name) VALUES (1, 'Alphavantage');
+INSERT INTO provider (provider_id, name) VALUES (2, 'Ultumus');
 
 CREATE TABLE provider_query (
   provider_id INT NOT NULL,
@@ -120,6 +121,7 @@ INSERT INTO provider_query (provider_id, provider_query_id, share_exchange, name
 INSERT INTO provider_query (provider_id, provider_query_id, share_exchange, name) VALUES (1, 2, 0, 'INTRADAY');
 INSERT INTO provider_query (provider_id, provider_query_id, share_exchange, name) VALUES (1, 3, 0, 'DAILY');
 INSERT INTO provider_query (provider_id, provider_query_id, share_exchange, name) VALUES (1, 4, 1, 'DAILY');
+INSERT INTO provider_query (provider_id, provider_query_id, share_exchange, name) VALUES (2, 5, 1, 'Ultumus');
 
 CREATE TABLE provider_query_security_symbol (
 	provider_query_id INT NOT NULL,
@@ -179,9 +181,8 @@ CREATE TABLE share_price (
   PRIMARY KEY (provider_query_id, isin, symbol, timestamp, open_high_close_low)
 );
 
-ALTER TABLE share_price ADD FOREIGN KEY (provider_query_id) REFERENCES provider_query(provider_query_id);
-ALTER TABLE share_price ADD FOREIGN KEY (isin, symbol) REFERENCES security_symbol(isin, symbol);
 ALTER TABLE share_price ADD FOREIGN KEY (timestamp) REFERENCES time_series(the_date);
+ALTER TABLE share_price ADD FOREIGN KEY (provider_query_id, isin, symbol) REFERENCES provider_query_security_symbol(provider_query_id, isin, symbol);
 
 CREATE TABLE index_masterdata (
   masterdata_id INT NOT NULL AUTO_INCREMENT,
@@ -239,17 +240,29 @@ CREATE TABLE index_variation_provider_security (
   PRIMARY KEY (symbol_id)
 );
 
--- warum geht das hier nicht :-(
 ALTER TABLE index_variation_provider_security ADD FOREIGN KEY (isin, symbol, provider_query_id) REFERENCES provider_query_security_symbol (isin, symbol, provider_query_id);
-ALTER TABLE index_variation_provider_security ADD FOREIGN KEY (isin, symbol) REFERENCES security_symbol (isin, symbol);
 ALTER TABLE index_variation_provider_security ADD FOREIGN KEY (variation_id) REFERENCES index_variation(variation_id);
-ALTER TABLE index_variation_provider_security ADD FOREIGN KEY (provider_query_id) REFERENCES provider_query(provider_query_id);
 ALTER TABLE index_variation_provider_security ADD FOREIGN KEY (valid_from) REFERENCES time_series(the_date);
 ALTER TABLE index_variation_provider_security ADD FOREIGN KEY (valid_to) REFERENCES time_series(the_date);
 
-alter table calc_security add primary key (variation_id, timestamp, isin, name);
+CREATE TABLE index_variation_provider_exchange (
+    provider_exchange_id INT NOT NULL,
+    currency_from VARCHAR(3) NOT NULL,
+    currency_to VARCHAR(3) NOT NULL,
+    provider_query_id INT NOT NULL,
+    quality DOUBLE NOT NULL,
+    valid_from DATETIME NOT NULL,
+    valid_to DATETIME NOT NULL,
+    variation_id INT NOT NULL,
+    PRIMARY KEY (provider_exchange_id)
+);
 
-CREATE OR REPLACE VIEW DAILY_PRICE_CLOSE AS 
+ALTER TABLE index_variation_provider_exchange ADD FOREIGN KEY (provider_query_id, currency_from, currency_to) REFERENCES provider_query_exchange_rate(provider_query_id, currency_from, currency_to);
+ALTER TABLE index_variation_provider_exchange ADD FOREIGN KEY (variation_id) REFERENCES index_variation(variation_id);
+ALTER TABLE index_variation_provider_exchange ADD FOREIGN KEY (valid_from) REFERENCES time_series(the_date);
+ALTER TABLE index_variation_provider_exchange ADD FOREIGN KEY (valid_to) REFERENCES time_series(the_date);
+
+CREATE OR REPLACE VIEW DAILY_PRICE_CLOSE AS
 SELECT isin, symbol, provider_query_id, timestamp, date(timestamp) as the_day, price, volume, open_high_close_low
 FROM (
 SELECT ROW_NUMBER() over (partition by isin, symbol, provider_query_id, date(timestamp) order by timestamp desc) as row_num,

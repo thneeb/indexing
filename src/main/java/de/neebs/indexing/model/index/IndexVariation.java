@@ -20,6 +20,11 @@ public class IndexVariation {
     public IndexVariation() {
     }
 
+    public IndexVariation(@NotNull String name, @NotNull Integer masterdataId) {
+        this.name = name;
+        this.masterdataId = masterdataId;
+    }
+
     public Integer getVariationId() {
         return variationId;
     }

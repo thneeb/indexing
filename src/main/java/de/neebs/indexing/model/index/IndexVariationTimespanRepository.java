@@ -6,6 +6,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;
+import java.util.Optional;
 
 @Repository
 public interface IndexVariationTimespanRepository extends CrudRepository<IndexVariationTimespan, Integer> {
@@ -13,4 +14,6 @@ public interface IndexVariationTimespanRepository extends CrudRepository<IndexVa
 
     @Query("SELECT ivt FROM IndexVariationTimespan ivt WHERE variationId = :variationId AND validFrom <= :timestamp AND validTo > :timestamp")
     Iterable<IndexVariationTimespan> findByVariationIdAndDate(@Param("variationId") int variationId, @Param("timestamp") Date timestamp);
+
+    Optional<IndexVariationTimespan> findByVariationIdAndValidFrom(Integer variationId, Date validFrom);
 }

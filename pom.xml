@@ -12,18 +12,6 @@
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>2.0.4.RELEASE</version>
 	</parent>
-	<distributionManagement>
-		<repository>
-			<id>central</id>
-			<name>artifactory-central</name>
-			<url>https://artifactory-tef-showcase-cicd.ballpark.altemista.cloud/artifactory/libs-release-local</url>
-		</repository>
-		<snapshotRepository>
-			<id>snapshots</id>
-			<name>artifactory-snapshots</name>
-			<url>https://artifactory-tef-showcase-cicd.ballpark.altemista.cloud/artifactory/libs-snapshot-local</url>
-		</snapshotRepository>
-	</distributionManagement>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -96,7 +84,7 @@
                 <artifactId>flyway-maven-plugin</artifactId>
                 <version>5.2.4</version>
                 <configuration>
-                    <url>jdbc:mariadb://localhost:3306/ticks</url>
+                    <url>jdbc:mariadb://localhost:3306/ticks2</url>
                     <user>root</user>
 					<password>r00t</password>
                 </configuration>

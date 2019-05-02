@@ -9,7 +9,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -97,6 +100,21 @@ public class SecurityContoller {
             }
         } else {
             return ResponseEntity.notFound().build();
+        }
+    }
+
+    @RequestMapping(value = "/{isin}/distribution", method = RequestMethod.GET)
+    public ResponseEntity<?> findDistributionByDate(@PathVariable String isin, @RequestParam String date) {
+        try {
+            Date effectiveDate = new SimpleDateFormat("yyyy-MM-dd").parse(date);
+            Optional<Distribution> distribution = distributionRepository.findByIsinAndEffectiveDate(isin, effectiveDate);
+            if (distribution.isPresent()) {
+                return ResponseEntity.ok(distribution);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (ParseException e) {
+            return ResponseEntity.badRequest().build();
         }
     }
 
