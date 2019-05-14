@@ -1,0 +1,1 @@
+ALTER TABLE provider ADD COLUMN calls_per_minute INT;

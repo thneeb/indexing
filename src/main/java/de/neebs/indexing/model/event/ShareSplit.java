@@ -7,7 +7,7 @@ import javax.persistence.Table;
 @Table(name = "event_share_split")
 public class ShareSplit extends AbstractCorporateEvent {
     /**
-     * The factor the number of shares increases. If after the split the double amount of share is available, the
+     * The factor the number of shares increases. If after the split the double amount of de.neebs.indexing.model.share is available, the
      * <code>splitFactor</code> must be 2.
      */
     private double splitFactor;

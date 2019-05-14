@@ -84,7 +84,7 @@
                 <artifactId>flyway-maven-plugin</artifactId>
                 <version>5.2.4</version>
                 <configuration>
-                    <url>jdbc:mariadb://localhost:3306/ticks2</url>
+                    <url>jdbc:mariadb://localhost:3306/ticks</url>
                     <user>root</user>
 					<password>r00t</password>
                 </configuration>

@@ -33,19 +33,6 @@ Where the_date between '1998-01-01' and '2039-12-31'
 
 ALTER TABLE time_series ADD PRIMARY KEY (the_date);
 
-CREATE TABLE time_series_tag (the_date DATETIME NOT NULL, tag VARCHAR(20)) AS
-SELECT the_date, 'DAY' as tag
-FROM time_series
-WHERE the_date = DATE(the_date)
-UNION ALL
-SELECT the_date, 'HOLIDAY' as tag
-FROM time_series
-WHERE DAYOFWEEK(the_date) = 1 
-OR DAYOFWEEK(the_date) = 6
-;
-
-ALTER TABLE time_series_tag ADD PRIMARY KEY (the_date, tag);
-
 CREATE TABLE day_series (
     the_date DATE NOT NULL,
     PRIMARY KEY (the_date)
@@ -56,6 +43,16 @@ SELECT DATE(the_date)
 FROM time_series
 GROUP BY DATE(the_date)
 ;
+
+CREATE TABLE day_series_tag (the_date DATETIME NOT NULL, tag VARCHAR(20)) AS
+SELECT the_date, 'HOLIDAY' as tag
+FROM day_series
+WHERE DAYOFWEEK(the_date) = 1 
+OR DAYOFWEEK(the_date) = 6
+;
+
+ALTER TABLE day_series_tag ADD PRIMARY KEY (the_date, tag);
+ALTER TABLE day_series_tag ADD FOREIGN KEY (the_date) REFERENCES day_series(the_date);
 
 CREATE TABLE open_high_close_low (
   id INT NOT NULL,
@@ -107,6 +104,7 @@ CREATE TABLE provider (
 
 INSERT INTO provider (provider_id, name) VALUES (1, 'Alphavantage');
 INSERT INTO provider (provider_id, name) VALUES (2, 'Ultumus');
+INSERT INTO provider (provider_id, name) VALUES (3, 'Morning Start');
 
 CREATE TABLE provider_query (
   provider_id INT NOT NULL,
@@ -165,9 +163,7 @@ CREATE TABLE exchange_rate (
   PRIMARY KEY (currency_from, currency_to, provider_query_id, timestamp)
 );
 
-ALTER TABLE exchange_rate ADD FOREIGN KEY (currency_from) REFERENCES currency (iso4217);
-ALTER TABLE exchange_rate ADD FOREIGN KEY (currency_to) REFERENCES currency (iso4217);
-ALTER TABLE exchange_rate ADD FOREIGN KEY (provider_query_id) REFERENCES provider_query(provider_query_id);
+ALTER TABLE exchange_rate ADD FOREIGN KEY (provider_query_id, currency_from, currency_to) REFERENCES provider_query_exchange_rate (provider_query_id, currency_from, currency_to);
 ALTER TABLE exchange_rate ADD FOREIGN KEY (timestamp) REFERENCES time_series(the_date);
 
 CREATE TABLE share_price (
@@ -184,6 +180,14 @@ CREATE TABLE share_price (
 ALTER TABLE share_price ADD FOREIGN KEY (timestamp) REFERENCES time_series(the_date);
 ALTER TABLE share_price ADD FOREIGN KEY (provider_query_id, isin, symbol) REFERENCES provider_query_security_symbol(provider_query_id, isin, symbol);
 
+CREATE TABLE index_family (
+    family_id INT NOT NULL AUTO_INCREMENT,
+    name VARCHAR(50) NOT NULL,
+    parent_id INT,
+    PRIMARY KEY (family_id)
+);
+CREATE UNIQUE INDEX uix_index_family1 ON index_family(name);
+
 CREATE TABLE index_masterdata (
   masterdata_id INT NOT NULL AUTO_INCREMENT,
   name VARCHAR(50) NOT NULL,
@@ -193,6 +197,7 @@ CREATE TABLE index_masterdata (
 );
 CREATE UNIQUE INDEX uix_index_masterdata1 ON index_masterdata(name);
 ALTER TABLE index_masterdata ADD FOREIGN KEY (currency) REFERENCES currency(iso4217);
+ALTER TABLE index_masterdata ADD FOREIGN KEY (family_id) REFERENCES index_family(family_id);
 
 INSERT INTO index_masterdata (name, currency) VALUES ('Thomas first index', 'USD');
 

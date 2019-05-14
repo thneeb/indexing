@@ -62,7 +62,7 @@ public class ProviderController {
         }
     }
 
-    @RequestMapping("/{provider}/query/{query}/share/{isin}/{symbol}")
+    @RequestMapping("/{provider}/query/{query}/de.neebs.indexing.model.share/{isin}/{symbol}")
     public ResponseEntity<?> findSharePrices(@PathVariable String provider, @PathVariable String query, @PathVariable String isin, @PathVariable String symbol) {
         Optional<ProviderQuery> optionalProviderQuery = getQuery(provider, query);
         if (optionalProviderQuery.isPresent()) {
