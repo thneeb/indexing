@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.security.PrivilegedActionException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -155,12 +158,40 @@ public class IndexController {
             timespan = indexFacade.insertTimespan(timespan, list, entity.isForce());
             String reference = linkTo(methodOn(getClass()).findTimespan(optionalIndexVariation.get().getMasterdataId(),
                     timespan.getVariationId(), timespan.getTimespanId())).withSelfRel().getHref();
+            entity.setTimespanId(timespan.getTimespanId());
             return ResponseEntity.created(URI.create(reference)).body(entity);
         } catch (DataIntegrityViolationException | IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         } catch (PrivilegedActionException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
         }
+    }
+
+    @RequestMapping(value = "/{masterdataId}/variation/{variationId}/timespan", method = RequestMethod.GET)
+    public ResponseEntity<?> findTimespans(@PathVariable int masterdataId, @PathVariable int variationId, @RequestParam(required = false) String timestamp) {
+        Date dtTimestamp;
+        if (timestamp != null) {
+            try {
+                dtTimestamp = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(timestamp);
+            } catch (ParseException e) {
+                return ResponseEntity.badRequest().build();
+            }
+        } else {
+            dtTimestamp = null;
+        }
+        Optional<IndexVariation> optionalIndexVariation = indexVariationRepository.findById(variationId);
+        if (!optionalIndexVariation.isPresent()) {
+            return ResponseEntity.badRequest().build();
+        }
+        if (optionalIndexVariation.get().getMasterdataId() != masterdataId) {
+            return ResponseEntity.badRequest().build();
+        }
+        List<IndexVariationTimespan> list = new ArrayList<>();
+        indexVariationTimespanRepository.findAll().forEach(list::add);
+        if (dtTimestamp != null) {
+            list = list.stream().filter(f -> !f.getValidFrom().after(dtTimestamp) && f.getValidTo().after(dtTimestamp)).collect(Collectors.toList());
+        }
+        return ResponseEntity.ok(list);
     }
 
     @RequestMapping(value = "/{masterdataId}/variation/{variationId}/timespan/{timespanId}", method = RequestMethod.GET)
@@ -329,6 +360,7 @@ public class IndexController {
         private Date validFrom;
         private Date validTo;
         private List<SecurityDistribution> securities = new ArrayList<>();
+        private Integer timespanId;
 
         public boolean isForce() {
             return force;
@@ -360,6 +392,14 @@ public class IndexController {
 
         public void setSecurities(List<SecurityDistribution> securities) {
             this.securities = securities;
+        }
+
+        public void setTimespanId(Integer timespanId) {
+            this.timespanId = timespanId;
+        }
+
+        public Integer getTimespanId() {
+            return timespanId;
         }
     }
 }

@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
@@ -23,14 +24,14 @@ public class ProviderController {
     @Autowired
     private SharePriceRepository sharePriceRepository;
 
-    @RequestMapping("")
+    @RequestMapping(value = "", method = RequestMethod.GET)
     public ResponseEntity<List<Provider>> findProviders() {
         List<Provider> list = new ArrayList<>();
         providerRepository.findAll().forEach(list::add);
         return ResponseEntity.ok(list);
     }
 
-    @RequestMapping("/{provider}")
+    @RequestMapping(value = "/{provider}", method = RequestMethod.GET)
     public ResponseEntity<?> findProvider(@PathVariable String provider) {
         Optional<Provider> optionalProvider = getProvider(provider);
         if (optionalProvider.isPresent()) {
@@ -40,7 +41,7 @@ public class ProviderController {
         }
     }
 
-    @RequestMapping("/{provider}/query")
+    @RequestMapping(value = "/{provider}/query", method = RequestMethod.GET)
     public ResponseEntity<List<ProviderQuery>> findQueries(@PathVariable String provider) {
         Optional<Provider> optionalProvider = getProvider(provider);
         if (optionalProvider.isPresent()) {
@@ -52,7 +53,7 @@ public class ProviderController {
         }
     }
 
-    @RequestMapping("/{provider}/query/{query}")
+    @RequestMapping(value = "/{provider}/query/{query}", method = RequestMethod.GET)
     public ResponseEntity<?> findQuery(@PathVariable String provider, @PathVariable String query) {
         Optional<ProviderQuery> optionalProviderQuery = getQuery(provider, query);
         if (optionalProviderQuery.isPresent()) {
@@ -62,7 +63,7 @@ public class ProviderController {
         }
     }
 
-    @RequestMapping("/{provider}/query/{query}/de.neebs.indexing.model.share/{isin}/{symbol}")
+    @RequestMapping(value = "/{provider}/query/{query}/security/{isin}/{symbol}", method = RequestMethod.GET)
     public ResponseEntity<?> findSharePrices(@PathVariable String provider, @PathVariable String query, @PathVariable String isin, @PathVariable String symbol) {
         Optional<ProviderQuery> optionalProviderQuery = getQuery(provider, query);
         if (optionalProviderQuery.isPresent()) {

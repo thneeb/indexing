@@ -1,0 +1,1 @@
+UPDATE provider SET name = 'Morningstar' WHERE provider_id = 3;

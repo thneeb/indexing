@@ -41,6 +41,13 @@ public class SecurityContoller {
         return ResponseEntity.created(URI.create(reference)).body(entity);
     }
 
+    @RequestMapping(value = "", method = RequestMethod.GET)
+    public ResponseEntity<?> findSecurities(@RequestParam(required = false) boolean symbols) {
+        List<Security> list = new ArrayList<>();
+        securityRepository.findAll().forEach(list::add);
+        return ResponseEntity.ok(list);
+    }
+
     @RequestMapping(value = "/{isin}", method = RequestMethod.GET)
     public ResponseEntity<?> findOneSecurity(@PathVariable String isin, @RequestParam(required = false) boolean symbols) {
         Optional<Security> security = securityRepository.findById(isin);

@@ -50,6 +50,9 @@ public class IndexFacade {
         if (timespan.getValidFrom().equals(timespan.getValidTo())) {
             throw new IllegalArgumentException();
         }
+        if (list.isEmpty()) {
+            return list;
+        }
         if (timespan.getValidFrom().equals(minDate) && timespan.getValidTo().equals(maxDate)) {
             if (!list.isEmpty()) {
                 throw new IllegalArgumentException();
@@ -96,9 +99,24 @@ public class IndexFacade {
                     throw new IllegalArgumentException();
                 }
             }
-            if (!force) {
-                throw new PrivilegedActionException(null);
+
+            Date localMinDate = maxDate;
+            Date localMaxDate = minDate;
+
+            for (T ivt : list) {
+                if (ivt.getValidFrom().before(localMinDate)) {
+                    localMinDate = ivt.getValidFrom();
+                }
+                if (ivt.getValidTo().after(localMaxDate)) {
+                    localMaxDate = ivt.getValidTo();
+                }
             }
+            if (!(timespan.getValidTo().compareTo(localMinDate) <= 0 || timespan.getValidFrom().compareTo(localMaxDate) >= 0)) {
+                if (!force) {
+                    throw new PrivilegedActionException(null);
+                }
+            }
+
             // wenn ein Eintrag existiert, in dem der bestehende Eintrag vollständig aufgeht, dann wird der
             // bestehende Eintrag aufgeteilt, in ein Stück, was vor dem neuen Eintrag liegt und eines, was dahinter
             // liegt.
