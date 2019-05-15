@@ -2,9 +2,6 @@ package de.neebs.indexing.controller;
 
 import de.neebs.indexing.model.common.Currency;
 import de.neebs.indexing.model.common.CurrencyRepository;
-import de.neebs.indexing.model.common.SecuritySymbol;
-import de.neebs.indexing.model.common.SecuritySymbolId;
-import de.neebs.indexing.model.common.SecuritySymbolRepository;
 import de.neebs.indexing.model.provider.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -24,7 +21,7 @@ public class UpdateSharePrice {
     private ProviderFactory providerFactory;
 
     @Autowired
-    private SecuritySymbolRepository securitySymbolRepository;
+    private ProviderSymbolRepository providerSymbolRepository;
 
     @Autowired
     private CurrencyRepository currencyRepository;
@@ -47,7 +44,7 @@ public class UpdateSharePrice {
             if (pqs.isPresent()) {
                 TimeSeriesProvider tsp = providerFactory.getTimeSeriesProvider(provider.getName());
                 Optional<ProviderQuery> optionalProviderQuery = providerQueryRepository.findById(pqs.get().getProviderQueryId());
-                Optional<SecuritySymbol> optionalShare = securitySymbolRepository.findById(new SecuritySymbolId(pqs.get().getIsin(), pqs.get().getSymbol()));
+                Optional<ProviderSymbol> optionalShare = providerSymbolRepository.findById(new ProviderSymbolId(provider.getProviderId(), pqs.get().getIsin(), pqs.get().getSymbol()));
                 if (optionalProviderQuery.isPresent() && optionalShare.isPresent()) {
                     pqs.get().setLastRun(new Date());
                     providerQuerySecuritySymbolRepository.save(pqs.get());

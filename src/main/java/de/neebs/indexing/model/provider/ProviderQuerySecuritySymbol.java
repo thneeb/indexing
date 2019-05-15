@@ -15,10 +15,12 @@ public class ProviderQuerySecuritySymbol {
     @Id
     @Column(length = 12)
     private String isin;
+    @Id
     @Column(length = 20)
     private String symbol;
     private Integer intervalInMinutes;
     private Date lastRun;
+    private int providerId;
 
     public ProviderQuerySecuritySymbol() {
     }
@@ -71,6 +73,14 @@ public class ProviderQuerySecuritySymbol {
         this.lastRun = lastRun;
     }
 
+    public int getProviderId() {
+        return providerId;
+    }
+
+    public void setProviderId(int providerId) {
+        this.providerId = providerId;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -94,6 +104,7 @@ public class ProviderQuerySecuritySymbol {
                 ", symbol='" + symbol + '\'' +
                 ", intervalInMinutes=" + intervalInMinutes +
                 ", lastRun=" + lastRun +
+                ", providerId=" + providerId +
                 '}';
     }
 }

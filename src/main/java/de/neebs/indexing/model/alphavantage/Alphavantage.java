@@ -1,7 +1,6 @@
 package de.neebs.indexing.model.alphavantage;
 
 import de.neebs.indexing.model.common.Currency;
-import de.neebs.indexing.model.common.SecuritySymbol;
 import de.neebs.indexing.model.common.SecurityRepository;
 import de.neebs.indexing.model.provider.*;
 import org.slf4j.Logger;
@@ -41,7 +40,7 @@ public class Alphavantage implements TimeSeriesProvider {
         return "Alphavantage";
     }
 
-    private boolean isFullLoad(ProviderQuery providerQuery, SecuritySymbol securitySymbol) {
+    private boolean isFullLoad(ProviderQuery providerQuery, ProviderSymbol securitySymbol) {
         if (!sharePriceRepository.existsByProviderQueryIdAndIsinAndSymbol(
                 providerQuery.getProviderQueryId(), securitySymbol.getIsin(), securitySymbol.getSymbol())) {
             return true;
@@ -64,7 +63,7 @@ public class Alphavantage implements TimeSeriesProvider {
     }
 
     @Override
-    public void execute(ProviderQuery providerQuery, SecuritySymbol symbol, Date lastRun) {
+    public void execute(ProviderQuery providerQuery, ProviderSymbol symbol, Date lastRun) {
         try {
             StringBuilder sb = new StringBuilder();
             sb.append("https://www.alphavantage.co/query");
