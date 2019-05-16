@@ -7,9 +7,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ProviderQuerySecuritySymbolRepository extends CrudRepository<ProviderQuerySecuritySymbol, ProviderQuerySecuritySymbolId> {
-    @Query("SELECT pqs " +
-            "FROM ProviderQuerySecuritySymbol pqs " +
-            "JOIN ProviderQuery pq ON pqs.providerQueryId = pq.providerQueryId " +
-            "WHERE pq.providerId = :providerId")
-    Iterable<ProviderQuerySecuritySymbol> findByProviderId(@Param("providerId") int providerId);
+    Iterable<ProviderQuerySecuritySymbol> findByProviderId(int providerId);
+
+    Iterable<ProviderQuerySecuritySymbol> findByProviderQueryId(int providerQueryId);
 }

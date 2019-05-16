@@ -32,7 +32,7 @@ public class UpdateSharePrice {
     @Autowired
     private ProviderQueryExchangeRateRepository providerQueryExchangeRateRepository;
 
-    @Scheduled(cron="*/25 * * * * *")
+//    @Scheduled(cron="*/25 * * * * *")
     public void updateSecurityRate() {
         for (Provider provider : providerRepository.findAll()) {
             List<ProviderQuerySecuritySymbol> list = new ArrayList<>();

@@ -220,6 +220,20 @@ public class IndexController {
         }
     }
 
+    @RequestMapping(value = "/{masterdataId}/variation/{variationId}/security", method = RequestMethod.GET)
+    public ResponseEntity<?> findProviderSecurity(@PathVariable int masterdataId, @PathVariable int variationId) {
+        Optional<IndexVariation> optionalIndexVariation = indexVariationRepository.findById(variationId);
+        if (!optionalIndexVariation.isPresent()) {
+            return ResponseEntity.badRequest().build();
+        }
+        if (optionalIndexVariation.get().getMasterdataId() != masterdataId) {
+            return ResponseEntity.badRequest().build();
+        }
+        List<IndexVariationProviderSecurity> list = new ArrayList<>();
+        indexVariationProviderSecurityRepository.findByVariationId(optionalIndexVariation.get().getVariationId()).forEach(list::add);
+        return ResponseEntity.ok(list);
+    }
+
     @RequestMapping(value = "/{masterdataId}/variation/{variationId}/security", method = RequestMethod.POST)
     public ResponseEntity<?> createProviderSecurity(@PathVariable int masterdataId, @PathVariable int variationId,
                                             @RequestBody IndexVariationProviderSecurity entity) {
@@ -236,7 +250,7 @@ public class IndexController {
                 return ResponseEntity.badRequest().build();
             }
             entity = indexFacade.insertProviderSecurity(entity, false);
-            String reference = linkTo(methodOn(getClass()).findProviderSecurity(masterdataId, variationId, entity.getProviderSecurityId())).withSelfRel().getHref();
+            String reference = linkTo(methodOn(getClass()).findProviderSecurity(masterdataId, variationId, entity.getSymbolId())).withSelfRel().getHref();
             return ResponseEntity.created(URI.create(reference)).body(entity);
         } catch (DataIntegrityViolationException | IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());

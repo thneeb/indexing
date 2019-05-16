@@ -12,7 +12,7 @@ import java.util.Objects;
 public class IndexVariationProviderSecurity implements Timespan, Cloneable {
     @Id
     @GeneratedValue
-    private Integer providerSecurityId;
+    private Integer symbolId;
     @Column(nullable = false)
     private Integer providerQueryId;
     @Column(nullable = false)
@@ -20,25 +20,22 @@ public class IndexVariationProviderSecurity implements Timespan, Cloneable {
     @NotNull
     @Column(length = 12, nullable = false)
     private String isin;
-    @Column(length = 20, nullable = false)
+    @Column(length = 50, nullable = false)
     private String symbol;
     @Column(nullable = false)
     private Date validFrom;
     @Column(nullable = false)
     private Date validTo;
-    @NotNull
-    @Column(nullable = false)
-    private double quality;
 
     public IndexVariationProviderSecurity() {
     }
 
-    public Integer getProviderSecurityId() {
-        return providerSecurityId;
+    public Integer getSymbolId() {
+        return symbolId;
     }
 
-    public void setProviderSecurityId(Integer providerSecurityId) {
-        this.providerSecurityId = providerSecurityId;
+    public void setSymbolId(Integer symbolId) {
+        this.symbolId = symbolId;
     }
 
     public Integer getVariationId() {
@@ -89,38 +86,29 @@ public class IndexVariationProviderSecurity implements Timespan, Cloneable {
         this.validTo = validTo;
     }
 
-    public double getQuality() {
-        return quality;
-    }
-
-    public void setQuality(double quality) {
-        this.quality = quality;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         IndexVariationProviderSecurity that = (IndexVariationProviderSecurity) o;
-        return Objects.equals(providerSecurityId, that.providerSecurityId);
+        return Objects.equals(symbolId, that.symbolId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(providerSecurityId);
+        return Objects.hash(symbolId);
     }
 
     @Override
     public String toString() {
         return "IndexVariationProviderSecurity{" +
-                "providerSecurityId=" + providerSecurityId +
+                "symbolId=" + symbolId +
                 ", providerQueryId=" + providerQueryId +
                 ", variationId=" + variationId +
                 ", isin='" + isin + '\'' +
                 ", symbol='" + symbol + '\'' +
                 ", validFrom=" + validFrom +
                 ", validTo=" + validTo +
-                ", quality=" + quality +
                 '}';
     }
 
@@ -128,7 +116,7 @@ public class IndexVariationProviderSecurity implements Timespan, Cloneable {
     public Object clone() {
         try {
             IndexVariationProviderSecurity obj = (IndexVariationProviderSecurity)super.clone();
-            obj.setProviderSecurityId(null);
+            obj.setSymbolId(null);
             return obj;
         } catch (CloneNotSupportedException e) {
             throw new IllegalStateException(e);

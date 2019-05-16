@@ -18,4 +18,6 @@ public interface IndexVariationProviderSecurityRepository extends CrudRepository
             "AND validFrom <= :timestamp AND validTo > :timestamp " +
             "ORDER BY quality")
     Iterable<IndexVariationProviderSecurity> findActualProvider(@Param("variationId") int variationId, @Param("isin") String isin, @Param("timestamp") Date timestamp);
+
+    Iterable<IndexVariationProviderSecurity> findByVariationId(int variationId);
 }

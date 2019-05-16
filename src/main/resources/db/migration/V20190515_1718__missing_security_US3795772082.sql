@@ -1,0 +1,1 @@
+INSERT INTO security (isin, name) VALUES ('US3795772082','GLOBUS MEDICAL INC');

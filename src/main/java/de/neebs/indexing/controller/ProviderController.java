@@ -70,7 +70,7 @@ public class ProviderController {
         return ResponseEntity.created(URI.create(reference)).body(symbol);
     }
 
-    @RequestMapping(value = "/{provider}/security/{isin}")
+    @RequestMapping(value = "/{provider}/security/{isin}", method = RequestMethod.GET)
     public ResponseEntity<?> findSymbols(@PathVariable String provider, @PathVariable String isin) {
         Optional<Provider> optionalProvider = getProvider(provider);
         if (!optionalProvider.isPresent()) {
@@ -81,7 +81,7 @@ public class ProviderController {
         return ResponseEntity.ok(list);
     }
 
-    @RequestMapping(value = "/{provider}/security/{isin}/{symbol}")
+    @RequestMapping(value = "/{provider}/security/{isin}/{symbol}", method = RequestMethod.GET)
     public ResponseEntity<?> findSymbol(@PathVariable String provider, @PathVariable String isin, @PathVariable String symbol) {
         Optional<Provider> optionalProvider = getProvider(provider);
         if (!optionalProvider.isPresent()) {
@@ -127,6 +127,18 @@ public class ProviderController {
             entity = providerQuerySecuritySymbolRepository.save(entity);
             String reference = linkTo(methodOn(getClass()).findQuerySymbol(provider, query, isin, symbol)).withSelfRel().getHref();
             return ResponseEntity.created(URI.create(reference)).body(entity);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @RequestMapping(value = "/{provider}/query/{query}/security", method = RequestMethod.GET)
+    public ResponseEntity<?> findSecuritiesForQuery(@PathVariable String provider, @PathVariable String query) {
+        Optional<ProviderQuery> optionalProviderQuery = getQuery(provider, query);
+        if (optionalProviderQuery.isPresent()) {
+            List<ProviderQuerySecuritySymbol> list = new ArrayList<>();
+            providerQuerySecuritySymbolRepository.findByProviderQueryId(optionalProviderQuery.get().getProviderQueryId()).forEach(list::add);
+            return ResponseEntity.ok(list);
         } else {
             return ResponseEntity.notFound().build();
         }

@@ -19,7 +19,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableSwagger2
 public class SwaggerConfig {
     protected String getMappingBasePackage() {
-        return "com.nttdata.dtl";
+        return "de.neebs.indexing";
     }
 
     @Bean
@@ -34,9 +34,9 @@ public class SwaggerConfig {
 
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                .title("Party Management API")
-                .description("Implementation of Party Management API")
-                .version("2.0")
+                .title("Indexing API")
+                .description("Implementation of Indexing API")
+                .version("1.0")
                 .build();
     }
 }

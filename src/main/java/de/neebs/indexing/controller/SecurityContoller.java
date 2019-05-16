@@ -26,9 +26,6 @@ public class SecurityContoller {
     private SecurityRepository securityRepository;
 
     @Autowired
-    private SecuritySymbolRepository securitySymbolRepository;
-
-    @Autowired
     private DistributionRepository distributionRepository;
 
     @RequestMapping(value = "", method = RequestMethod.POST)
@@ -37,7 +34,7 @@ public class SecurityContoller {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
         entity = securityRepository.save(entity);
-        String reference = linkTo(methodOn(getClass()).findOneSecurity(entity.getIsin(), false)).withSelfRel().getHref();
+        String reference = linkTo(methodOn(getClass()).findOneSecurity(entity.getIsin())).withSelfRel().getHref();
         return ResponseEntity.created(URI.create(reference)).body(entity);
     }
 
@@ -49,40 +46,10 @@ public class SecurityContoller {
     }
 
     @RequestMapping(value = "/{isin}", method = RequestMethod.GET)
-    public ResponseEntity<?> findOneSecurity(@PathVariable String isin, @RequestParam(required = false) boolean symbols) {
+    public ResponseEntity<?> findOneSecurity(@PathVariable String isin) {
         Optional<Security> security = securityRepository.findById(isin);
         if (security.isPresent()) {
-            if (symbols) {
-                List<SecuritySymbol> list = new ArrayList<>();
-                securitySymbolRepository.findByIsin(isin).forEach(list::add);
-                return ResponseEntity.ok(new SecurityWithSymbols(security.get(), list));
-            } else {
-                return ResponseEntity.ok(security.get());
-            }
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @RequestMapping(value = "/{isin}/symbol", method = RequestMethod.POST)
-    public ResponseEntity<?> createSymbol(@PathVariable String isin, @RequestBody SecuritySymbol entity) {
-        if (entity.getIsin() != null && !entity.getIsin().equals(isin)) {
-            return ResponseEntity.badRequest().build();
-        }
-        if (securitySymbolRepository.existsById(new SecuritySymbolId(isin, entity.getSymbol()))) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
-        }
-        entity.setIsin(isin);
-        entity = securitySymbolRepository.save(entity);
-        String reference = linkTo(methodOn(getClass()).findOneSymbol(entity.getIsin(), entity.getSymbol())).withSelfRel().getHref();
-        return ResponseEntity.created(URI.create(reference)).body(entity);
-    }
-
-    @RequestMapping(value = "/{isin}/symbol/{symbol}", method = RequestMethod.GET)
-    public ResponseEntity<?> findOneSymbol(@PathVariable String isin, @PathVariable String symbol) {
-        Optional<SecuritySymbol> securitySymbol = securitySymbolRepository.findById(new SecuritySymbolId(isin, symbol));
-        if (securitySymbol.isPresent()) {
-            return ResponseEntity.ok(securitySymbol);
+            return ResponseEntity.ok(security.get());
         } else {
             return ResponseEntity.notFound().build();
         }
@@ -125,16 +92,4 @@ public class SecurityContoller {
         }
     }
 
-    private class SecurityWithSymbols extends Security {
-        private final List<SecuritySymbol> symbols;
-
-        SecurityWithSymbols(Security security, List<SecuritySymbol> symbols) {
-            super(security);
-            this.symbols = symbols;
-        }
-
-        public List<SecuritySymbol> getSymbols() {
-            return symbols;
-        }
-    }
 }

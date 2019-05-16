@@ -1,0 +1,1 @@
+INSERT INTO security (isin, name) VALUES ('TW0003443008','GLOBAL UNICHIP CORP');

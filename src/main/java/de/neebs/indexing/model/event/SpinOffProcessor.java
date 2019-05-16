@@ -28,7 +28,6 @@ public class SpinOffProcessor implements EventProcessor {
             ivps.setIsin(spinOff.getIsin());
             ivps.setProviderQueryId(spinOff.getSpinOffProviderQueryId());
             ivps.setSymbol(spinOff.getSpinOffSymbol());
-            ivps.setQuality(spinOff.getSpinOffProviderQuality());
             ivps.setValidFrom(spinOff.getEffectiveDate());
             ivps.setValidTo(oldIvps.getValidTo());
             indexVariationProviderSecurityRepository.save(ivps);

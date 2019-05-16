@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import springfox.documentation.annotations.ApiIgnore;
 
 import java.io.InputStream;
 import java.text.ParseException;
@@ -17,6 +18,7 @@ import java.util.*;
 
 @RequestMapping("/edi")
 @RestController
+@ApiIgnore
 public class EdiImportController {
     private static final Logger LOG = LoggerFactory.getLogger(EdiImportController.class);
 
