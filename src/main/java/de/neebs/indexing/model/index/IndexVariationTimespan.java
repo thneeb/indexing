@@ -1,16 +1,14 @@
 package de.neebs.indexing.model.index;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.Date;
 import java.util.Objects;
 
 @Entity
 public class IndexVariationTimespan implements Timespan, Cloneable {
     @Id
-    @GeneratedValue
+    @TableGenerator(name = "SQ_INDEX_TIMESPAN", table = "HIBERNATE_SEQUENCES", initialValue = 1001, pkColumnValue = "index_variation_timespan")
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "SQ_INDEX_TIMESPAN")
     private Integer timespanId;
     @Column(nullable = false)
     private Integer variationId;

@@ -8,7 +8,7 @@ import java.util.Objects;
 @Entity
 public class IndexVariationProviderSecurity implements Timespan, Cloneable {
     @Id
-    @GeneratedValue()
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer symbolId;
     @Column(nullable = false)
     private Integer providerQueryId;

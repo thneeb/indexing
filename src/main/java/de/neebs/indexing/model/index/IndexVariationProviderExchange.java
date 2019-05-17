@@ -1,9 +1,6 @@
 package de.neebs.indexing.model.index;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.Objects;
@@ -11,7 +8,7 @@ import java.util.Objects;
 @Entity
 public class IndexVariationProviderExchange implements Timespan, Cloneable {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer providerExchangeId;
     @Column(nullable = false)
     private Integer providerQueryId;

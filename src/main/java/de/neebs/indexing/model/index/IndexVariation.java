@@ -8,7 +8,8 @@ import java.util.Objects;
 @Entity
 public class IndexVariation {
     @Id
-    @GeneratedValue
+    @TableGenerator(name = "SQ_INDEX_VARIATION", table = "HIBERNATE_SEQUENCES", initialValue = 1001, pkColumnValue = "index_variation")
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "SQ_INDEX_VARIATION")
     private Integer variationId;
     @NotNull
     @Column(length = 100, nullable = false)

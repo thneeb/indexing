@@ -9,7 +9,8 @@ import java.util.Date;
 @Table(name = "event_base")
 public abstract class AbstractCorporateEvent implements CorporateEvent {
     @Id
-    @GeneratedValue
+    @TableGenerator(name = "SQ_CORPORATE_EVENT", table = "HIBERNATE_SEQUENCES", initialValue = 1001, pkColumnValue = "event_base")
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "SQ_CORPORATE_EVENT")
     private Integer eventId;
     @NotNull
     @Column(nullable = false, length = 12)

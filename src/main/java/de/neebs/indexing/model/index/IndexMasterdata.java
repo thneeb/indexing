@@ -1,16 +1,14 @@
 package de.neebs.indexing.model.index;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Objects;
 
 @Entity
 public class IndexMasterdata {
     @Id
-    @GeneratedValue
+    @TableGenerator(name = "SQ_INDEX_MASTERDATA", table = "HIBERNATE_SEQUENCES", initialValue = 1001, pkColumnValue = "index_masterdata")
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "SQ_INDEX_MASTERDATA")
     private Integer masterdataId;
     @NotNull
     @Column(length = 100, nullable = false, unique = true)

@@ -65,13 +65,15 @@ public class UpdateSharePrice {
             }
             if (pqe.isPresent()) {
                 TimeSeriesProvider tsp = providerFactory.getTimeSeriesProvider(provider.getName());
-                Optional<ProviderQuery> optionalProviderQuery = providerQueryRepository.findById(pqe.get().getProviderQueryId());
-                Optional<de.neebs.indexing.model.common.Currency> currencyFrom = currencyRepository.findById(pqe.get().getCurrencyFrom());
-                Optional<Currency> currencyTo = currencyRepository.findById(pqe.get().getCurrencyTo());
-                if (optionalProviderQuery.isPresent() && currencyFrom.isPresent() && currencyTo.isPresent()) {
-                    pqe.get().setLastRun(new Date());
-                    providerQueryExchangeRateRepository.save(pqe.get());
-                    tsp.execute(optionalProviderQuery.get(), currencyFrom.get(), currencyTo.get(), pqe.get().getLastRun());
+                if (tsp != null) {
+                    Optional<ProviderQuery> optionalProviderQuery = providerQueryRepository.findById(pqe.get().getProviderQueryId());
+                    Optional<de.neebs.indexing.model.common.Currency> currencyFrom = currencyRepository.findById(pqe.get().getCurrencyFrom());
+                    Optional<Currency> currencyTo = currencyRepository.findById(pqe.get().getCurrencyTo());
+                    if (optionalProviderQuery.isPresent() && currencyFrom.isPresent() && currencyTo.isPresent()) {
+                        pqe.get().setLastRun(new Date());
+                        providerQueryExchangeRateRepository.save(pqe.get());
+                        tsp.execute(optionalProviderQuery.get(), currencyFrom.get(), currencyTo.get(), pqe.get().getLastRun());
+                    }
                 }
             }
         }
