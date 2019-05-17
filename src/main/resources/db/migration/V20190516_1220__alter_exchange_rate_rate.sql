@@ -1,0 +1,1 @@
+ALTER TABLE exchange_rate MODIFY COLUMN rate DECIMAL(16, 10) NOT NULL;
